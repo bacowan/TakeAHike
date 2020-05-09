@@ -1,20 +1,22 @@
-package com.example.takeahike.interaction
+package com.example.takeahike.adapters
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.navigation.fragment.NavHostFragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.example.takeahike.R
 import com.example.takeahike.ui.CurrentHike
 import com.example.takeahike.ui.EditRoutesList
 
-class StartScreenPagerAdapter(fm: FragmentActivity) : FragmentStateAdapter(fm) {
+class StartScreenPagerAdapter(val fm: FragmentActivity) : FragmentStateAdapter(fm) {
     override fun getItemCount(): Int = 2
 
     override fun createFragment(position: Int): Fragment {
         return if (position == 0) {
-            CurrentHike()
+            NavHostFragment.create(R.navigation.current_hike_graph)
         }
         else {
-            EditRoutesList()
+            NavHostFragment.create(R.navigation.edit_routes_graph)
         }
     }
 }

@@ -1,18 +1,16 @@
 package com.example.takeahike.ui
 
 import android.os.Bundle
-import android.view.View
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.example.takeahike.R
-import com.example.takeahike.interaction.StartScreenPagerAdapter
+import com.example.takeahike.adapters.StartScreenPagerAdapter
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
 class MainActivity : FragmentActivity() {
 
     private lateinit var viewPager: ViewPager2
-    private lateinit var stateAdapter: StartScreenPagerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +31,7 @@ class MainActivity : FragmentActivity() {
 
     override fun onBackPressed() {
         if (viewPager.currentItem == 0) {
-            super.onBackPressed()
+            viewPager.
         }
         else {
             viewPager.currentItem = viewPager.currentItem - 1
