@@ -3,4 +3,6 @@
     <string name="new_route">New Route</string>
     <string name="continue_trip">Continue Trip</string>
     <string name="new_trip">Start a New Trip</string>
+    <string name="current_hike">Current Hike</string>
+    <string name="edit_routes">Edit Routes</string>
 </resources>
