@@ -5,4 +5,5 @@
     <string name="new_trip">Start a New Trip</string>
     <string name="current_hike">Current Hike</string>
     <string name="edit_routes">Edit Routes</string>
+    <string name="title_activity_maps">Map</string>
 </resources>
