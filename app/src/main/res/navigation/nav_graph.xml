@@ -15,9 +15,6 @@
         <action
             android:id="@+id/action_current_hike_to_hike_ar"
             app:destination="@id/hike_ar" />
-        <action
-            android:id="@+id/action_current_hike_to_edit_routes_list"
-            app:destination="@id/edit_routes_list" />
     </fragment>
     <fragment android:id="@+id/edit_route" />
     <fragment android:id="@+id/edit_routes_list" >
