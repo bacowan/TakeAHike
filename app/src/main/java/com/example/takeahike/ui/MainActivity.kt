@@ -1,7 +1,8 @@
-package com.example.takeahike
+package com.example.takeahike.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.example.takeahike.R
 
 class MainActivity : AppCompatActivity() {
 
