@@ -1,19 +1,19 @@
 package com.example.takeahike.presenter
 
-import com.example.takeahike.uiEvents.editRouteUIEvents.AddWaypointEvent
+import com.example.takeahike.uiEvents.editRouteUIEvents.SetWaypointsUIEvent
 import com.example.takeahike.viewmodels.EditRouteViewModel
 import org.osmdroid.bonuspack.routing.MapQuestRoadManager
+import org.osmdroid.bonuspack.routing.Road
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.util.GeoPoint
 
 class EditRoutePresenter(mapQuestKey: String) : Presenter<EditRouteViewModel> {
 
-    private val _updateUI : InvokableEvent<EditRouteViewModel> = InvokableEvent()
-    override val updateUI: Event<EditRouteViewModel>
+    private val _updateUI : InvokablePresenterEvent<EditRouteViewModel> = InvokablePresenterEvent()
+    override val updateUI: PresenterEvent<EditRouteViewModel>
         get() = _updateUI
 
     private val roadManager : RoadManager = MapQuestRoadManager(mapQuestKey)
-    private val points : ArrayList<GeoPoint> = ArrayList()
 
     init {
         // TODO: Make this configurable
@@ -22,22 +22,33 @@ class EditRoutePresenter(mapQuestKey: String) : Presenter<EditRouteViewModel> {
 
     // TODO: make calls async
     override fun update(event: Any) {
-        if (event is AddWaypointEvent) {
-            addWaypoint(event)
+        if (event is SetWaypointsUIEvent) {
+            setWaypoints(event)
         }
     }
 
-    private fun addWaypoint(event: AddWaypointEvent) {
-        if (event.index < 0) {
-            points.add(GeoPoint(event.lat, event.lon))
+    private fun setWaypoints(event: SetWaypointsUIEvent) {
+        val points = ArrayList(event.points)
+        val newPoint = event.newPoint
+        if (newPoint != null) {
+            points.add(newPoint)
+        }
+
+        val viewModel = if (points.count() > 1) {
+            // TODO: Error handling for bad returns
+            val path = roadManager.getRoad(points)
+
+            EditRouteViewModel(
+                points,
+                path)
         }
         else {
-            points.add(event.index, GeoPoint(event.lat, event.lon))
+            EditRouteViewModel(
+                points,
+                Road()
+            )
         }
 
-        val path = roadManager.getRoad(points)
-
-        val viewModel = EditRouteViewModel(path)
         _updateUI.invoke(viewModel)
     }
 }

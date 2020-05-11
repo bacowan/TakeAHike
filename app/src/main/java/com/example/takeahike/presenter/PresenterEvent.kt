@@ -1,6 +1,6 @@
 package com.example.takeahike.presenter
 
-interface Event<TEventArgs> {
+interface PresenterEvent<TEventArgs> {
     fun subscribe(callback: (TEventArgs) -> Unit)
     fun unsubscribe(callback: (TEventArgs) -> Unit)
 }

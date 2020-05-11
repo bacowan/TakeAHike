@@ -1,6 +1,6 @@
 package com.example.takeahike.presenter
 
-class InvokableEvent<TEventArgs> : Event<TEventArgs> {
+class InvokablePresenterEvent<TEventArgs> : PresenterEvent<TEventArgs> {
     private val subscribers : HashSet<(TEventArgs) -> Unit> = HashSet()
 
     override fun subscribe(callback: (TEventArgs) -> Unit) {
