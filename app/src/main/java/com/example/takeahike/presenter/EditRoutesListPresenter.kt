@@ -1,13 +1,8 @@
 package com.example.takeahike.presenter
 
-import android.content.Context
-import android.os.Parcel
-import com.example.takeahike.backend.data.RouteSaveData
 import com.example.takeahike.backend.utilities.ParseRouteListData
 import com.example.takeahike.uiEvents.routeListUIEvents.ListReadyUIEvent
-import com.example.takeahike.viewmodels.RouteListViewModel
-import java.io.FileNotFoundException
-import java.lang.Exception
+import com.example.takeahike.viewmodels.routeList.RouteListViewModel
 
 class EditRoutesListPresenter : Presenter<RouteListViewModel> {
     private val _updateUI : InvokablePresenterEvent<RouteListViewModel> = InvokablePresenterEvent()
@@ -18,22 +13,16 @@ class EditRoutesListPresenter : Presenter<RouteListViewModel> {
 
     override fun update(event: Any) {
         if (event is ListReadyUIEvent) {
-            loadList(event)
+            loadList()
         }
     }
 
-    private fun loadList(event: ListReadyUIEvent) {
-        try {
-            val data = dataParser.parseData(event.data)
-            if (data != null) {
-                _updateUI.invoke(RouteListViewModel(data.routes))
-            }
-            else {
-                // TODO: Error handling
-            }
-        }
-        catch (e : Exception) {
-            // TODO: invalid save data
-        }
+    private fun loadList() {
+        val routes = dataParser.loadData()
+        _updateUI.invoke(
+            RouteListViewModel(
+                routes
+            )
+        )
     }
 }

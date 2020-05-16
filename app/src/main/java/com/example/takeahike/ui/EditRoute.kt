@@ -1,6 +1,5 @@
 package com.example.takeahike.ui
 
-import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,8 +9,10 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.example.takeahike.R
 import com.example.takeahike.presenter.EditRoutePresenter
+import com.example.takeahike.uiEvents.editRouteUIEvents.SaveEvent
 import com.example.takeahike.uiEvents.editRouteUIEvents.SetWaypointsUIEvent
-import com.example.takeahike.viewmodels.EditRouteViewModel
+import com.example.takeahike.viewmodels.editRoute.EditRouteViewModel
+import com.example.takeahike.viewmodels.editRoute.SaveCompleteAction
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
@@ -27,6 +28,7 @@ class EditRoute : Fragment(), NameRoute.Listener {
         super.onCreate(savedInstanceState)
         presenter = EditRoutePresenter(resources.getString(R.string.map_quest_key))
         presenter.updateUI.subscribe { update(it) }
+        presenter.updateUIAction.subscribe { updateAction(it) }
         nodeIcon = resources.getDrawable(R.drawable.ic_location_on_black_24dp)
     }
 
@@ -75,6 +77,12 @@ class EditRoute : Fragment(), NameRoute.Listener {
         ))
     }
 
+    private fun updateAction(saveCompleteAction : SaveCompleteAction) {
+        val action = EditRouteDirections
+            .actionEditRouteToEditRoutesList()
+        view?.findNavController()?.navigate(action)
+    }
+
     private fun update(viewmodel : EditRouteViewModel) {
         map.overlays.removeIf { it !is ClickOverlay }
 
@@ -96,20 +104,7 @@ class EditRoute : Fragment(), NameRoute.Listener {
     }
 
     override fun onConfirm(name: String) {
-        // TODO: Don't hard code the filename
-        val bytes = try {
-            context?.openFileInput("routes")?.readBytes()
-        }
-        catch (e : Exception) {
-            null
-        }
-        context?.openFileOutput("routes", Context.MODE_PRIVATE).use {
-            presenter.saveNew(name, it, bytes)
-        }
-
-        val action = EditRouteDirections
-            .actionEditRouteToEditRoutesList()
-        view?.findNavController()?.navigate(action)
+        presenter.update(SaveEvent(name))
     }
 
     override fun onCancel() {

@@ -1,21 +1,24 @@
 package com.example.takeahike.presenter
 
-import com.example.takeahike.backend.data.RouteSaveData
-import com.example.takeahike.backend.data.RouteSaveItem
 import com.example.takeahike.backend.utilities.ParseRouteListData
+import com.example.takeahike.uiEvents.editRouteUIEvents.SaveEvent
 import com.example.takeahike.uiEvents.editRouteUIEvents.SetWaypointsUIEvent
-import com.example.takeahike.viewmodels.EditRouteViewModel
+import com.example.takeahike.viewmodels.editRoute.EditRouteViewModel
+import com.example.takeahike.viewmodels.editRoute.SaveCompleteAction
 import org.osmdroid.bonuspack.routing.MapQuestRoadManager
 import org.osmdroid.bonuspack.routing.Road
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.util.GeoPoint
-import java.io.FileOutputStream
 
-class EditRoutePresenter(mapQuestKey: String) : Presenter<EditRouteViewModel> {
+class EditRoutePresenter(mapQuestKey: String) : ActionPresenter<SaveCompleteAction, EditRouteViewModel> {
 
     private val _updateUI : InvokablePresenterEvent<EditRouteViewModel> = InvokablePresenterEvent()
     override val updateUI: PresenterEvent<EditRouteViewModel>
         get() = _updateUI
+
+    private val _updateUIAction : InvokablePresenterEvent<SaveCompleteAction> = InvokablePresenterEvent()
+    override val updateUIAction: PresenterEvent<SaveCompleteAction>
+        get() = _updateUIAction
 
     private val roadManager : RoadManager = MapQuestRoadManager(mapQuestKey)
     private val dataParser : ParseRouteListData = ParseRouteListData()
@@ -32,6 +35,9 @@ class EditRoutePresenter(mapQuestKey: String) : Presenter<EditRouteViewModel> {
     override fun update(event: Any) {
         if (event is SetWaypointsUIEvent) {
             setWaypoints(event)
+        }
+        else if (event is SaveEvent) {
+            save(event.name)
         }
     }
 
@@ -50,7 +56,8 @@ class EditRoutePresenter(mapQuestKey: String) : Presenter<EditRouteViewModel> {
 
             EditRouteViewModel(
                 points,
-                path)
+                path
+            )
         }
         else {
             EditRouteViewModel(
@@ -62,26 +69,10 @@ class EditRoutePresenter(mapQuestKey: String) : Presenter<EditRouteViewModel> {
         _updateUI.invoke(viewModel)
     }
 
-    fun saveNew(name: String, fos: FileOutputStream?, existingData: ByteArray?) {
-        val existingList = if (existingData != null) {
-            dataParser.parseData(existingData) ?: RouteSaveData(mutableListOf())
-        }
-        else {
-            RouteSaveData(mutableListOf())
-        }
-
-
-        val theRoad = road
-        if (theRoad != null) {
-            existingList.routes.add(RouteSaveItem(
-                name,
-                theRoad,
-                wayPoints
-            ))
-            dataParser.writeData(fos, existingList)
-        }
-        else {
-            // TODO: Error handling
-        }
+    private fun save(name: String) {
+        road?.let {
+            dataParser.saveData(name, it, wayPoints)
+        } // TODO: Error handling if road == null
+        _updateUIAction.invoke(SaveCompleteAction())
     }
 }

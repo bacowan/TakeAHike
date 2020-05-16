@@ -13,6 +13,7 @@ import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupWithNavController
 import com.example.takeahike.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import io.realm.Realm
 import org.osmdroid.config.Configuration
 
 
@@ -20,6 +21,8 @@ class MainActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Realm.init(applicationContext)
 
         val policy =
             StrictMode.ThreadPolicy.Builder().permitAll().build()

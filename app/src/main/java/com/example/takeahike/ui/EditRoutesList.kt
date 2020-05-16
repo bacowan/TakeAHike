@@ -1,7 +1,6 @@
 package com.example.takeahike.ui
 
 import android.os.Bundle
-import android.os.Parcel
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,11 +10,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.takeahike.R
 import com.example.takeahike.adapters.RouteListAdapter
-import com.example.takeahike.backend.data.RouteSaveData
 import com.example.takeahike.presenter.EditRoutesListPresenter
 import com.example.takeahike.uiEvents.routeListUIEvents.ListReadyUIEvent
-import com.example.takeahike.viewmodels.RouteListViewModel
-import java.io.FileNotFoundException
+import com.example.takeahike.viewmodels.routeList.RouteListViewModel
 
 class EditRoutesList : Fragment() {
     private lateinit var recyclerView: RecyclerView
@@ -47,18 +44,7 @@ class EditRoutesList : Fragment() {
             it.findNavController().navigate(action)
         }
 
-        try {
-            // TODO: Figure out how to cache so that this only gets called once per app load
-            val bytes = context?.openFileInput("routes")?.readBytes()
-            if (bytes != null) {
-                presenter.update(ListReadyUIEvent(bytes))
-            }
-        }
-        catch (e : FileNotFoundException) {
-            // TODO: Error handling? This is a valid scenario though.
-            //  Should probably log it somewhere, however.
-        }
-
+        presenter.update(ListReadyUIEvent())
     }
 
     fun update(viewModel : RouteListViewModel) {
