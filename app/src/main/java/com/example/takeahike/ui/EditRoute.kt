@@ -1,23 +1,24 @@
 package com.example.takeahike.ui
 
+import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
 import com.example.takeahike.R
 import com.example.takeahike.presenter.EditRoutePresenter
 import com.example.takeahike.uiEvents.editRouteUIEvents.SetWaypointsUIEvent
 import com.example.takeahike.viewmodels.EditRouteViewModel
-import org.osmdroid.api.IGeoPoint
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.*
 
 
-class EditRoute : Fragment() {
+class EditRoute : Fragment(), NameRoute.Listener {
     private lateinit var map: MapView
     private lateinit var presenter : EditRoutePresenter
     private lateinit var nodeIcon : Drawable
@@ -43,6 +44,18 @@ class EditRoute : Fragment() {
         map.overlays.add(ClickOverlay { sendPresenterMarkerChange(it) })
 
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val confirmRouteButton: View = view.findViewById(R.id.confirm_route_fab)
+
+        confirmRouteButton.setOnClickListener {
+            val dialog = NameRoute()
+            dialog.setTargetFragment(this, 0)
+            dialog.show(parentFragmentManager, "NameRouteFragment")
+        }
     }
 
     override fun onResume() {
@@ -73,13 +86,33 @@ class EditRoute : Fragment() {
             marker.position = it
             marker.icon = nodeIcon
             marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-            marker.infoWindow = null
+            // TODO add ability to delete markers when clicking
             marker.isDraggable = true
             marker.setOnMarkerDragListener(OnMarkerDragListener { sendPresenterMarkerChange() })
             map.overlays.add(marker)
         }
 
         map.invalidate()
+    }
+
+    override fun onConfirm(name: String) {
+        // TODO: Don't hard code the filename
+        val bytes = try {
+            context?.openFileInput("routes")?.readBytes()
+        }
+        catch (e : Exception) {
+            null
+        }
+        context?.openFileOutput("routes", Context.MODE_PRIVATE).use {
+            presenter.saveNew(name, it, bytes)
+        }
+
+        val action = EditRouteDirections
+            .actionEditRouteToEditRoutesList()
+        view?.findNavController()?.navigate(action)
+    }
+
+    override fun onCancel() {
     }
 
 }

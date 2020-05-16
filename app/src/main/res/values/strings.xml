@@ -6,4 +6,7 @@
     <string name="current_hike">Current Hike</string>
     <string name="edit_routes">Edit Routes</string>
     <string name="title_activity_maps">Map</string>
+    <string name="route_name">Route Name</string>
+    <string name="confirm_button">Confirm</string>
+    <string name="cancel_button">Cancel</string>
 </resources>
