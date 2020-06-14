@@ -47,7 +47,7 @@ class EditRoutesList : Fragment() {
         presenter.update(ListReadyUIEvent())
     }
 
-    fun update(viewModel : RouteListViewModel) {
+    private fun update(viewModel : RouteListViewModel) {
         viewAdapter = RouteListAdapter(viewModel.routes.map { it.name }.toTypedArray())
 
         view?.let {
