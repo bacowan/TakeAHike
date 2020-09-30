@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/current_hike_nav"
+    app:startDestination="@id/no_current_hike">
+    <fragment
+        android:id="@+id/no_current_hike"
+        android:name="com.example.takeahike.ui.NoCurrentHike">
+        <action
+            android:id="@+id/action_select_hike_to_select_route_list"
+            app:destination="@id/select_route_list" />
+        <action
+            android:id="@+id/action_no_current_hike_to_current_hike"
+            app:destination="@id/current_hike" />
+    </fragment>
+    <fragment
+        android:id="@+id/current_hike"
+        android:name="com.example.takeahike.ui.CurrentHike"
+        tools:layout="@layout/current_hike">
+        <action
+            android:id="@+id/action_current_hike_to_hike_ar"
+            app:destination="@id/hike_ar" />
+        <action
+            android:id="@+id/action_current_hike_to_select_route_list"
+            app:destination="@id/select_route_list" />
+    </fragment>
+    <fragment android:id="@+id/select_route_list" >
+        <action
+            android:id="@+id/action_select_route_list_to_current_hike"
+            app:destination="@id/current_hike" />
+    </fragment>
+    <fragment android:id="@+id/hike_ar" />
+</navigation>

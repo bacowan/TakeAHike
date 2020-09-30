@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@id/edit_routes_list"
+    android:id="@+id/hike_editor_nav">
+    <fragment
+        android:id="@+id/edit_route"
+        android:name="com.example.takeahike.ui.EditRoute"
+        tools:layout="@layout/edit_route" >
+        <action
+            android:id="@+id/action_edit_route_to_edit_routes_list"
+            app:destination="@id/edit_routes_list" />
+    </fragment>
+    <fragment
+        android:id="@+id/edit_routes_list"
+        android:name="com.example.takeahike.ui.EditRoutesList"
+        tools:layout="@layout/edit_routes_list">
+    <action
+        android:id="@+id/action_edit_routes_list_to_edit_route"
+        app:destination="@id/edit_route" />
+    </fragment>
+</navigation>
