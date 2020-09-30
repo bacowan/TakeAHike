@@ -1,4 +1,4 @@
-package com.example.takeahike.ui
+package com.example.takeahike.ui.edit.list
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,7 +9,7 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.takeahike.R
-import com.example.takeahike.adapters.RouteListAdapter
+import com.example.takeahike.ui.adapters.RouteListAdapter
 import com.example.takeahike.presenter.EditRoutesListPresenter
 import com.example.takeahike.uiEvents.routeListUIEvents.ListReadyUIEvent
 import com.example.takeahike.viewmodels.routeList.RouteListViewModel
@@ -39,8 +39,8 @@ class EditRoutesList : Fragment() {
 
         val addButton: View = view.findViewById(R.id.fab)
         addButton.setOnClickListener {
-            val action = EditRoutesListDirections
-                .actionEditRoutesListToEditRoute()
+            val action =
+                EditRoutesListDirections.actionEditRoutesListToEditRoute()
             it.findNavController().navigate(action)
         }
 

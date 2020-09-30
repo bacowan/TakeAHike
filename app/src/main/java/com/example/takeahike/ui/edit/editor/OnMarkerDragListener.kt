@@ -1,4 +1,4 @@
-package com.example.takeahike.ui
+package com.example.takeahike.ui.edit.editor
 
 import org.osmdroid.views.overlay.Marker
 

@@ -6,7 +6,7 @@
     app:startDestination="@id/no_current_hike">
     <fragment
         android:id="@+id/no_current_hike"
-        android:name="com.example.takeahike.ui.NoCurrentHike">
+        android:name="com.example.takeahike.ui.hike.NoCurrentHike">
         <action
             android:id="@+id/action_select_hike_to_select_route_list"
             app:destination="@id/select_route_list" />
@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/current_hike"
-        android:name="com.example.takeahike.ui.CurrentHike"
+        android:name="com.example.takeahike.ui.hike.CurrentHike"
         tools:layout="@layout/current_hike">
         <action
             android:id="@+id/action_current_hike_to_hike_ar"

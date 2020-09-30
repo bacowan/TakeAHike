@@ -1,4 +1,4 @@
-package com.example.takeahike.ui
+package com.example.takeahike.ui.hike
 
 import android.os.Bundle
 import android.view.LayoutInflater

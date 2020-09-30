@@ -1,4 +1,4 @@
-package com.example.takeahike.ui
+package com.example.takeahike.ui.edit.editor
 
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -43,7 +43,11 @@ class EditRoute : Fragment(), NameRoute.Listener {
         map.setMultiTouchControls(true)
         map.controller.setZoom(3.0)
 
-        map.overlays.add(ClickOverlay { sendPresenterMarkerChange(it) })
+        map.overlays.add(ClickOverlay {
+            sendPresenterMarkerChange(
+                it
+            )
+        })
 
         return view
     }
@@ -78,8 +82,8 @@ class EditRoute : Fragment(), NameRoute.Listener {
     }
 
     private fun updateAction(saveCompleteAction : SaveCompleteAction) {
-        val action = EditRouteDirections
-            .actionEditRouteToEditRoutesList()
+        val action =
+            EditRouteDirections.actionEditRouteToEditRoutesList()
         view?.findNavController()?.navigate(action)
     }
 

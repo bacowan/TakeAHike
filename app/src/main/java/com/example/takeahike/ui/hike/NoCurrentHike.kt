@@ -1,4 +1,4 @@
-package com.example.takeahike.ui
+package com.example.takeahike.ui.hike
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -23,7 +23,8 @@ class NoCurrentHike : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         if (currentHikeLogic.currentRouteExists()) {
-            val action = NoCurrentHikeDirections.actionNoCurrentHikeToCurrentHike()
+            val action =
+                NoCurrentHikeDirections.actionNoCurrentHikeToCurrentHike()
             view.findNavController().navigate(action)
         }
     }

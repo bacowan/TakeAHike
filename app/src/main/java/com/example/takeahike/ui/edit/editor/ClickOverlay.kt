@@ -1,4 +1,4 @@
-package com.example.takeahike.ui
+package com.example.takeahike.ui.edit.editor
 
 import android.view.MotionEvent
 import com.example.takeahike.presenter.EditRoutePresenter
