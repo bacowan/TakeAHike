@@ -28,7 +28,8 @@
     <fragment android:id="@+id/select_route_list" >
         <action
             android:id="@+id/action_select_route_list_to_current_hike"
-            app:destination="@id/current_hike" />
+            app:destination="@id/current_hike"
+            app:popUpToInclusive="true"/>
     </fragment>
     <fragment android:id="@+id/hike_ar" />
 </navigation>

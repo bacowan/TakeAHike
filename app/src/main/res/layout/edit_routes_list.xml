@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        android:id="@+id/edit_list_recycler_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:scrollbars="horizontal"
@@ -22,6 +22,6 @@
         android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
         android:src="@drawable/ic_add_black_24dp"
-        app:layout_constraintBottom_toBottomOf="@+id/recyclerView"
-        app:layout_constraintEnd_toEndOf="@+id/recyclerView" />
+        app:layout_constraintBottom_toBottomOf="@+id/edit_list_recycler_view"
+        app:layout_constraintEnd_toEndOf="@+id/edit_list_recycler_view" />
 </androidx.constraintlayout.widget.ConstraintLayout>

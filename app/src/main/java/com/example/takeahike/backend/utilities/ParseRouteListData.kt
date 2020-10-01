@@ -1,6 +1,7 @@
 package com.example.takeahike.backend.utilities
 
 import android.os.Parcel
+import android.util.Log
 import com.example.takeahike.backend.data.GpsPointEntity
 import com.example.takeahike.backend.data.RouteEntity
 import io.realm.Realm
@@ -10,7 +11,13 @@ import org.osmdroid.bonuspack.routing.Road
 import org.osmdroid.util.GeoPoint
 
 class ParseRouteListData {
+    fun loadRoute(id: String) : RouteEntity? {
+        val realm = Realm.getDefaultInstance()
+        return realm.where<RouteEntity>().equalTo(RouteEntity::id.name, id).findFirst()
+    }
+
     fun loadData() : List<RouteEntity> {
+        // TODO: error handling for when the database can't be opened
         val realm = Realm.getDefaultInstance()
         return realm.where<RouteEntity>().findAll()
     }
@@ -30,7 +37,7 @@ class ParseRouteListData {
         })
 
         realm.beginTransaction()
-        realm.copyToRealm(entity)
+        realm.insert(entity)
         realm.commitTransaction()
     }
 }

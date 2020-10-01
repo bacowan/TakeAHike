@@ -7,8 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.navArgs
 import com.example.takeahike.R
 import com.example.takeahike.presenter.EditRoutePresenter
+import com.example.takeahike.uiEvents.editRouteUIEvents.LoadRouteEvent
 import com.example.takeahike.uiEvents.editRouteUIEvents.SaveEvent
 import com.example.takeahike.uiEvents.editRouteUIEvents.SetWaypointsUIEvent
 import com.example.takeahike.viewmodels.editRoute.EditRouteViewModel
@@ -23,6 +25,8 @@ class EditRoute : Fragment(), NameRoute.Listener {
     private lateinit var map: MapView
     private lateinit var presenter : EditRoutePresenter
     private lateinit var nodeIcon : Drawable
+
+    private val args: EditRouteArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,6 +66,8 @@ class EditRoute : Fragment(), NameRoute.Listener {
             dialog.setTargetFragment(this, 0)
             dialog.show(parentFragmentManager, "NameRouteFragment")
         }
+
+        presenter.update(LoadRouteEvent(args.routeId))
     }
 
     override fun onResume() {

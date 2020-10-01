@@ -1,6 +1,7 @@
 package com.example.takeahike.presenter
 
 import com.example.takeahike.backend.utilities.ParseRouteListData
+import com.example.takeahike.uiEvents.editRouteUIEvents.LoadRouteEvent
 import com.example.takeahike.uiEvents.editRouteUIEvents.SaveEvent
 import com.example.takeahike.uiEvents.editRouteUIEvents.SetWaypointsUIEvent
 import com.example.takeahike.viewmodels.editRoute.EditRouteViewModel
@@ -39,6 +40,9 @@ class EditRoutePresenter(mapQuestKey: String) : ActionPresenter<SaveCompleteActi
         else if (event is SaveEvent) {
             save(event.name)
         }
+        else if (event is LoadRouteEvent && event.routeId != null) {
+            loadRoute(event.routeId)
+        }
     }
 
     private fun setWaypoints(event: SetWaypointsUIEvent) {
@@ -74,5 +78,32 @@ class EditRoutePresenter(mapQuestKey: String) : ActionPresenter<SaveCompleteActi
             dataParser.saveData(name, it, wayPoints)
         } // TODO: Error handling if road == null
         _updateUIAction.invoke(SaveCompleteAction())
+    }
+
+    private fun loadRoute(routeId: String) {
+        val route = dataParser.loadRoute(routeId)
+        val viewModel = if (route != null) {
+            val points = ArrayList(route.wayPoints.map { GeoPoint(it.lat, it.lon) })
+            val road = if (points.count() > 1) {
+                roadManager.getRoad(points)
+            }
+            else {
+                Road()
+            }
+            EditRouteViewModel(
+                points,
+                road
+            )
+        }
+        else {
+            //TODO: Error handling
+            EditRouteViewModel(
+                arrayListOf(),
+                Road()
+            )
+        }
+
+        // TODO: zoom in on the map
+        _updateUI.invoke(viewModel)
     }
 }

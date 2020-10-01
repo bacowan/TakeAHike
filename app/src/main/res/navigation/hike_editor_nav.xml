@@ -10,7 +10,13 @@
         tools:layout="@layout/edit_route" >
         <action
             android:id="@+id/action_edit_route_to_edit_routes_list"
-            app:destination="@id/edit_routes_list" />
+            app:destination="@id/edit_routes_list"
+            app:popUpToInclusive="true"/>
+        <argument
+            android:name="routeId"
+            app:argType="string"
+            android:defaultValue="@null"
+            app:nullable="true" />
     </fragment>
     <fragment
         android:id="@+id/edit_routes_list"
