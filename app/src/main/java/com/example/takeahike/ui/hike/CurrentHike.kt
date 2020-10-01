@@ -13,8 +13,11 @@ import com.example.takeahike.ui.edit.editor.ClickOverlay
 import com.example.takeahike.ui.edit.editor.OnMarkerDragListener
 import com.example.takeahike.uiEvents.currentHikeUIEvents.LoadRouteEvent
 import com.example.takeahike.viewmodels.currentRoute.CurrentHikeViewModel
+import com.example.takeahike.viewmodels.currentRoute.RecenterAction
 import com.example.takeahike.viewmodels.editRoute.EditRouteViewModel
 import org.osmdroid.bonuspack.routing.RoadManager
+import org.osmdroid.util.BoundingBox
+import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 
@@ -26,6 +29,7 @@ class CurrentHike : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         presenter = CurrentHikePresenter(resources.getString(R.string.map_quest_key))
+        presenter.updateUIAction.subscribe { updateAction(it) }
         presenter.updateUI.subscribe { update(it) }
     }
 
@@ -37,7 +41,6 @@ class CurrentHike : Fragment() {
         val view = inflater.inflate(R.layout.current_hike, container, false)
 
         map = view.findViewById(R.id.current_hike_map)
-        map.controller.setZoom(3.0)
 
         return view
     }
@@ -53,7 +56,13 @@ class CurrentHike : Fragment() {
 
         val roadOverlay = RoadManager.buildRoadOverlay(viewmodel.road)
         map.overlays.add(roadOverlay)
+
         map.invalidate()
+    }
+
+    private fun updateAction(action : RecenterAction) {
+        map.controller.setCenter(GeoPoint(action.lat, action.lon))
+        map.controller.setZoom(18.0)
     }
 
     override fun onResume() {

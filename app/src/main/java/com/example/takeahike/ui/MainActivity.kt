@@ -2,13 +2,13 @@ package com.example.takeahike.ui
 
 import android.os.Bundle
 import android.os.StrictMode
-import android.preference.PreferenceManager
 import android.util.Log
 import androidx.activity.addCallback
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import com.example.takeahike.R
 import com.example.takeahike.backend.utilities.CurrentHikeLogic
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -28,7 +28,8 @@ class MainActivity : FragmentActivity() {
         val policy =
             StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
-        Configuration.getInstance().load(applicationContext, PreferenceManager.getDefaultSharedPreferences(applicationContext))
+        // TODO: change
+        Configuration.getInstance().setUserAgentValue("changeme")
 
         setContentView(R.layout.activity_main)
 
