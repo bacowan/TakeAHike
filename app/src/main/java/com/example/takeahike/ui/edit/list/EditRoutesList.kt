@@ -2,10 +2,8 @@ package com.example.takeahike.ui.edit.list
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,11 +13,9 @@ import com.example.takeahike.ui.adapters.RouteListAdapter
 import com.example.takeahike.presenter.EditRoutesListPresenter
 import com.example.takeahike.ui.adapters.AdapterItemClickListener
 import com.example.takeahike.uiEvents.routeListUIEvents.ListReadyUIEvent
-import com.example.takeahike.viewmodels.routeList.RouteListViewModel
+import com.example.takeahike.viewmodels.editRouteList.EditRouteListViewModel
 
 class EditRoutesList : Fragment() {
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var viewAdapter: RecyclerView.Adapter<*>
     private lateinit var viewManager: RecyclerView.LayoutManager
 
     private val presenter : EditRoutesListPresenter = EditRoutesListPresenter()
@@ -50,8 +46,8 @@ class EditRoutesList : Fragment() {
         presenter.update(ListReadyUIEvent())
     }
 
-    private fun update(viewModel : RouteListViewModel) {
-        viewAdapter = RouteListAdapter(
+    private fun update(viewModel : EditRouteListViewModel) {
+        val viewAdapter = RouteListAdapter(
             viewModel.routes.map { it.name }.toTypedArray(),
             object:AdapterItemClickListener {
                 override fun onItemClick(view: View, position: Int) {
@@ -64,7 +60,7 @@ class EditRoutesList : Fragment() {
         )
 
         view?.let {
-            recyclerView = it.findViewById<RecyclerView>(R.id.edit_list_recycler_view).apply {
+            it.findViewById<RecyclerView>(R.id.edit_list_recycler_view).apply {
                 setHasFixedSize(true)
                 layoutManager = viewManager
                 adapter = viewAdapter

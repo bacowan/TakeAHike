@@ -3,10 +3,11 @@ package com.example.takeahike.presenter
 import com.example.takeahike.backend.utilities.ParseRouteListData
 import com.example.takeahike.uiEvents.routeListUIEvents.ListReadyUIEvent
 import com.example.takeahike.viewmodels.editRouteList.EditRouteListViewModel
+import com.example.takeahike.viewmodels.selectRoute.SelectRouteViewModel
 
-class EditRoutesListPresenter : Presenter<EditRouteListViewModel> {
-    private val _updateUI : InvokablePresenterEvent<EditRouteListViewModel> = InvokablePresenterEvent()
-    override val updateUI: PresenterEvent<EditRouteListViewModel>
+class SelectRoutePresenter : Presenter<SelectRouteViewModel> {
+    private val _updateUI : InvokablePresenterEvent<SelectRouteViewModel> = InvokablePresenterEvent()
+    override val updateUI: PresenterEvent<SelectRouteViewModel>
         get() = _updateUI
 
     private val dataParser : ParseRouteListData = ParseRouteListData()
@@ -20,7 +21,7 @@ class EditRoutesListPresenter : Presenter<EditRouteListViewModel> {
     private fun loadList() {
         val routes = dataParser.loadData()
         _updateUI.invoke(
-            EditRouteListViewModel(
+            SelectRouteViewModel(
                 routes
             )
         )

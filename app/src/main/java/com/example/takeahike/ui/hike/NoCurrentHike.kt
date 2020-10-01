@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.example.takeahike.R
@@ -26,6 +27,14 @@ class NoCurrentHike : Fragment() {
             val action =
                 NoCurrentHikeDirections.actionNoCurrentHikeToCurrentHike()
             view.findNavController().navigate(action)
+        }
+        else {
+            val button = view.findViewById<Button>(R.id.new_hike_button)
+            button.setOnClickListener {
+                val action =
+                    NoCurrentHikeDirections.actionSelectHikeToSelectRouteList()
+                view.findNavController().navigate(action)
+            }
         }
     }
 }

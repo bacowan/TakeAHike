@@ -1,7 +1,7 @@
-package com.example.takeahike.viewmodels.routeList
+package com.example.takeahike.viewmodels.editRouteList
 
 import com.example.takeahike.backend.data.RouteEntity
 
-class RouteListViewModel(
+data class EditRouteListViewModel(
     val routes : List<RouteEntity>
 )

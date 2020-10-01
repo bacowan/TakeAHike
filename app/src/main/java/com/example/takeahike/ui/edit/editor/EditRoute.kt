@@ -33,7 +33,7 @@ class EditRoute : Fragment(), NameRoute.Listener {
         presenter = EditRoutePresenter(resources.getString(R.string.map_quest_key))
         presenter.updateUI.subscribe { update(it) }
         presenter.updateUIAction.subscribe { updateAction(it) }
-        nodeIcon = resources.getDrawable(R.drawable.ic_location_on_black_24dp)
+        nodeIcon = resources.getDrawable(R.drawable.ic_location_on_black_24dp, null)
     }
 
     override fun onCreateView(
