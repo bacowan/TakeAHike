@@ -5,32 +5,34 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import com.example.takeahike.R
-import com.example.takeahike.presenter.CurrentHikePresenter
-import com.example.takeahike.presenter.EditRoutePresenter
+import com.example.takeahike.viewModels.CurrentHikeViewModel
 import com.example.takeahike.ui.edit.editor.ClickOverlay
-import com.example.takeahike.ui.edit.editor.OnMarkerDragListener
 import com.example.takeahike.uiEvents.currentHikeUIEvents.LoadRouteEvent
-import com.example.takeahike.viewmodels.currentRoute.CurrentHikeViewModel
-import com.example.takeahike.viewmodels.currentRoute.RecenterAction
-import com.example.takeahike.viewmodels.editRoute.EditRouteViewModel
+import com.example.takeahike.viewData.currentRoute.CurrentHikeData
+import com.example.takeahike.viewData.currentRoute.RecenterAction
+import com.example.takeahike.viewData.editRoute.EditRouteData
+import com.example.takeahike.viewData.editRoute.SaveCompleteAction
+import com.example.takeahike.viewModels.ActionPresenter
+import com.example.takeahike.viewModels.EditRouteViewModel
+import com.example.takeahike.viewModels.factories.CurrentHikePresenterFactory
+import com.example.takeahike.viewModels.factories.EditRoutePresenterFactory
 import org.osmdroid.bonuspack.routing.RoadManager
-import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
 
-class CurrentHike : Fragment() {
+class CurrentHikeFragment : Fragment() {
     private lateinit var map: MapView
-    private lateinit var presenter : CurrentHikePresenter
-    private val args: CurrentHikeArgs by navArgs()
+    private val args: CurrentHikeFragmentArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        presenter = CurrentHikePresenter(resources.getString(R.string.map_quest_key))
-        presenter.updateUIAction.subscribe { updateAction(it) }
-        presenter.updateUI.subscribe { update(it) }
+        val viewModel = getViewModel()
+        viewModel.data.observe(this, Observer { update(it) })
+        viewModel.action.observe(this, Observer { it.handle { value -> updateAction(value) }})
     }
 
     override fun onCreateView(
@@ -48,10 +50,11 @@ class CurrentHike : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        presenter.update(LoadRouteEvent(args.routeId))
+        val viewModel = getViewModel()
+        viewModel.update(LoadRouteEvent(args.currentHike.routeId))
     }
 
-    private fun update(viewmodel : CurrentHikeViewModel) {
+    private fun update(viewmodel : CurrentHikeData) {
         map.overlays.removeIf { it !is ClickOverlay }
 
         val roadOverlay = RoadManager.buildRoadOverlay(viewmodel.road)
@@ -73,5 +76,10 @@ class CurrentHike : Fragment() {
     override fun onPause() {
         super.onPause()
         map.onPause()
+    }
+
+    private fun getViewModel() : ActionPresenter<RecenterAction, CurrentHikeData> {
+        return ViewModelProvider(this, CurrentHikePresenterFactory(resources.getString(R.string.map_quest_key))).get(
+            CurrentHikeViewModel::class.java)
     }
 }

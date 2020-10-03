@@ -1,24 +1,28 @@
-package com.example.takeahike.presenter
+package com.example.takeahike.viewModels
 
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.example.takeahike.backend.utilities.ParseRouteListData
 import com.example.takeahike.uiEvents.currentHikeUIEvents.LoadRouteEvent
-import com.example.takeahike.viewmodels.currentRoute.CurrentHikeViewModel
-import com.example.takeahike.viewmodels.currentRoute.RecenterAction
-import com.example.takeahike.viewmodels.editRoute.EditRouteViewModel
-import com.example.takeahike.viewmodels.editRoute.SaveCompleteAction
+import com.example.takeahike.viewData.currentRoute.CurrentHikeData
+import com.example.takeahike.viewData.currentRoute.RecenterAction
+import com.example.takeahike.viewData.editRoute.EditRouteData
+import com.example.takeahike.viewData.editRoute.SaveCompleteAction
 import org.osmdroid.bonuspack.routing.MapQuestRoadManager
 import org.osmdroid.bonuspack.routing.Road
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.util.GeoPoint
 
-class CurrentHikePresenter(mapQuestKey: String) : ActionPresenter<RecenterAction, CurrentHikeViewModel> {
-    private val _updateUI : InvokablePresenterEvent<CurrentHikeViewModel> = InvokablePresenterEvent()
-    override val updateUI: PresenterEvent<CurrentHikeViewModel>
-        get() = _updateUI
+class CurrentHikeViewModel(mapQuestKey: String)
+    : ViewModel(), ActionPresenter<RecenterAction, CurrentHikeData> {
 
-    private val _updateUIAction : InvokablePresenterEvent<RecenterAction> = InvokablePresenterEvent()
-    override val updateUIAction: PresenterEvent<RecenterAction>
-        get() = _updateUIAction
+    override val action: MutableLiveData<ConsumableValue<RecenterAction>> by lazy {
+        MutableLiveData<ConsumableValue<RecenterAction>>()
+    }
+
+    override val data: MutableLiveData<CurrentHikeData> by lazy {
+        MutableLiveData<CurrentHikeData>()
+    }
 
     private val roadManager : RoadManager = MapQuestRoadManager(mapQuestKey)
     private val dataParser : ParseRouteListData = ParseRouteListData()
@@ -38,14 +42,14 @@ class CurrentHikePresenter(mapQuestKey: String) : ActionPresenter<RecenterAction
             else {
                 Road()
             }
-            CurrentHikeViewModel(
+            CurrentHikeData(
                 points,
                 road
             )
         }
         else {
             //TODO: Error handling
-            CurrentHikeViewModel(
+            CurrentHikeData(
                 listOf(),
                 Road()
             )
@@ -55,10 +59,10 @@ class CurrentHikePresenter(mapQuestKey: String) : ActionPresenter<RecenterAction
             RecenterAction(it.lat, it.lon)
         }
 
-        _updateUI.invoke(viewModel)
+        data.value = viewModel
 
         if (recenterAction != null) {
-            _updateUIAction.invoke(recenterAction)
+            action.value = ConsumableValue(recenterAction)
         }
     }
 }

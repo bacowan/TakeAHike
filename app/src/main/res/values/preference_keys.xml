@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="current_hike_route_id">current_hike_route_id</string>
+    <string name="current_hike_progress">current_hike_progress</string>
+</resources>

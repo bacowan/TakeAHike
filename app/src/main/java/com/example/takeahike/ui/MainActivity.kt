@@ -2,15 +2,12 @@ package com.example.takeahike.ui
 
 import android.os.Bundle
 import android.os.StrictMode
-import android.util.Log
 import androidx.activity.addCallback
+import androidx.activity.viewModels
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentContainerView
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
-import androidx.preference.PreferenceManager
 import com.example.takeahike.R
 import com.example.takeahike.backend.utilities.CurrentHikeLogic
+import com.example.takeahike.viewModels.MainActivityViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import io.realm.Realm
 import org.osmdroid.config.Configuration
@@ -30,11 +27,13 @@ class MainActivity : FragmentActivity() {
         StrictMode.setThreadPolicy(policy)
         // TODO: change
         Configuration.getInstance().setUserAgentValue("changeme")
+        //Configuration.getInstance().load(applicationContext, PreferenceManager.getDefaultSharedPreferences(applicationContext));
 
         setContentView(R.layout.activity_main)
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
         bottomNav.setOnNavigationItemSelectedListener {
+            val viewModel : MainActivityViewModel by viewModels()
             when (it.itemId) {
                 R.id.current_hike_nav -> {
                     val newFragment = supportFragmentManager.findFragmentByTag("hike")
@@ -42,13 +41,14 @@ class MainActivity : FragmentActivity() {
                         supportFragmentManager.beginTransaction().show(newFragment).commit()
                     }
                     else {
-                        val newContainer = NavGraphHostFragment(R.navigation.current_hike_nav)
+                        val newContainer = createNavGraphHostFragment(R.navigation.current_hike_nav)
                         supportFragmentManager.beginTransaction().add(R.id.fragment_container, newContainer, "hike").commit()
                     }
                     val currentFragment = supportFragmentManager.findFragmentByTag("edit")
                     if (currentFragment != null) {
                         supportFragmentManager.beginTransaction().hide(currentFragment).commit()
                     }
+                    viewModel.currentTab = R.id.current_hike_nav
                     return@setOnNavigationItemSelectedListener true
                 }
                 R.id.hike_editor_nav -> {
@@ -57,13 +57,14 @@ class MainActivity : FragmentActivity() {
                         supportFragmentManager.beginTransaction().show(newFragment).commit()
                     }
                     else {
-                        val newContainer = NavGraphHostFragment(R.navigation.hike_editor_nav)
+                        val newContainer = createNavGraphHostFragment(R.navigation.hike_editor_nav)
                         supportFragmentManager.beginTransaction().add(R.id.fragment_container, newContainer, "edit").commit()
                     }
                     val currentFragment = supportFragmentManager.findFragmentByTag("hike")
                     if (currentFragment != null) {
                         supportFragmentManager.beginTransaction().hide(currentFragment).commit()
                     }
+                    viewModel.currentTab = R.id.hike_editor_nav
                     return@setOnNavigationItemSelectedListener true
                 }
                 else -> {
@@ -71,7 +72,16 @@ class MainActivity : FragmentActivity() {
                 }
             }
         }
-        bottomNav.selectedItemId = R.id.current_hike_nav
+
+        val viewModel : MainActivityViewModel by viewModels()
+        val currentTab = viewModel.currentTab
+        if (currentTab != null) {
+            bottomNav.selectedItemId = currentTab
+        }
+        else {
+            bottomNav.selectedItemId = R.id.current_hike_nav
+            viewModel.currentTab = bottomNav.selectedItemId
+        }
 
         onBackPressedDispatcher.addCallback(this) {
             val editFragment = supportFragmentManager.findFragmentByTag("edit")

@@ -5,23 +5,26 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.takeahike.R
 import com.example.takeahike.ui.adapters.RouteListAdapter
-import com.example.takeahike.presenter.EditRoutesListPresenter
+import com.example.takeahike.viewModels.EditRoutesListViewModel
 import com.example.takeahike.ui.adapters.AdapterItemClickListener
 import com.example.takeahike.uiEvents.routeListUIEvents.ListReadyUIEvent
-import com.example.takeahike.viewmodels.editRouteList.EditRouteListViewModel
+import com.example.takeahike.viewData.editRouteList.EditRouteListData
 
 class EditRoutesList : Fragment() {
     private lateinit var viewManager: RecyclerView.LayoutManager
 
-    private val presenter : EditRoutesListPresenter = EditRoutesListPresenter()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-    init {
-        presenter.updateUI.subscribe { update(it) }
+        val viewModel: EditRoutesListViewModel by viewModels()
+        viewModel.data.observe(this, Observer { update(it) })
     }
 
     override fun onCreateView(
@@ -43,15 +46,16 @@ class EditRoutesList : Fragment() {
             it.findNavController().navigate(action)
         }
 
-        presenter.update(ListReadyUIEvent())
+        val viewModel: EditRoutesListViewModel by viewModels()
+        viewModel.update(ListReadyUIEvent())
     }
 
-    private fun update(viewModel : EditRouteListViewModel) {
+    private fun update(data : EditRouteListData) {
         val viewAdapter = RouteListAdapter(
-            viewModel.routes.map { it.name }.toTypedArray(),
+            data.routes.map { it.name }.toTypedArray(),
             object:AdapterItemClickListener {
                 override fun onItemClick(view: View, position: Int) {
-                    val id = viewModel.routes[position].id
+                    val id = data.routes[position].id
                     val action =
                         EditRoutesListDirections.actionEditRoutesListToEditRoute(id)
                     view.findNavController().navigate(action)

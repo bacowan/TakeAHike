@@ -6,15 +6,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.takeahike.R
-import com.example.takeahike.presenter.EditRoutePresenter
+import com.example.takeahike.viewModels.ActionPresenter
+import com.example.takeahike.viewModels.EditRouteViewModel
+import com.example.takeahike.viewModels.factories.EditRoutePresenterFactory
 import com.example.takeahike.uiEvents.editRouteUIEvents.LoadRouteEvent
 import com.example.takeahike.uiEvents.editRouteUIEvents.SaveEvent
 import com.example.takeahike.uiEvents.editRouteUIEvents.SetWaypointsUIEvent
-import com.example.takeahike.viewmodels.editRoute.EditRouteViewModel
-import com.example.takeahike.viewmodels.editRoute.SaveCompleteAction
+import com.example.takeahike.viewData.editRoute.EditRouteData
+import com.example.takeahike.viewData.editRoute.SaveCompleteAction
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
@@ -23,16 +27,17 @@ import org.osmdroid.views.overlay.*
 
 class EditRoute : Fragment(), NameRoute.Listener {
     private lateinit var map: MapView
-    private lateinit var presenter : EditRoutePresenter
     private lateinit var nodeIcon : Drawable
 
     private val args: EditRouteArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        presenter = EditRoutePresenter(resources.getString(R.string.map_quest_key))
-        presenter.updateUI.subscribe { update(it) }
-        presenter.updateUIAction.subscribe { updateAction(it) }
+
+        val viewModel = getViewModel()
+        viewModel.data.observe(this, Observer { update(it) })
+        viewModel.action.observe(this, Observer { it.handle { value -> updateAction(value) }})
+
         nodeIcon = resources.getDrawable(R.drawable.ic_location_on_black_24dp, null)
     }
 
@@ -45,7 +50,20 @@ class EditRoute : Fragment(), NameRoute.Listener {
 
         map = view.findViewById(R.id.map)
         map.setMultiTouchControls(true)
-        map.controller.setZoom(3.0)
+
+        if (savedInstanceState != null) {
+            with(savedInstanceState) {
+                map.controller.setZoom(getDouble(currentZoomKey))
+                map.controller.setCenter(GeoPoint(
+                        getDouble(currentLatKey),
+                        getDouble(currentLonKey)
+                    )
+                )
+            }
+        }
+        else {
+            map.controller.setZoom(3.0)
+        }
 
         map.overlays.add(ClickOverlay {
             sendPresenterMarkerChange(
@@ -67,6 +85,7 @@ class EditRoute : Fragment(), NameRoute.Listener {
             dialog.show(parentFragmentManager, "NameRouteFragment")
         }
 
+        val presenter = getViewModel()
         presenter.update(LoadRouteEvent(args.routeId))
     }
 
@@ -80,7 +99,15 @@ class EditRoute : Fragment(), NameRoute.Listener {
         map.onPause()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putDouble(currentZoomKey, map.zoomLevelDouble)
+        outState.putDouble(currentLatKey, map.mapCenter.latitude)
+        outState.putDouble(currentLonKey, map.mapCenter.longitude)
+        super.onSaveInstanceState(outState)
+    }
+
     private fun sendPresenterMarkerChange(newPoint : GeoPoint? = null) {
+        val presenter = getViewModel()
         presenter.update(SetWaypointsUIEvent(
             ArrayList(map.overlays.filterIsInstance<Marker>().map { it.position }),
             newPoint
@@ -93,7 +120,7 @@ class EditRoute : Fragment(), NameRoute.Listener {
         view?.findNavController()?.navigate(action)
     }
 
-    private fun update(viewmodel : EditRouteViewModel) {
+    private fun update(viewmodel : EditRouteData) {
         map.overlays.removeIf { it !is ClickOverlay }
 
         val roadOverlay = RoadManager.buildRoadOverlay(viewmodel.road)
@@ -114,10 +141,20 @@ class EditRoute : Fragment(), NameRoute.Listener {
     }
 
     override fun onConfirm(name: String) {
+        val presenter = getViewModel()
         presenter.update(SaveEvent(name))
     }
 
     override fun onCancel() {
     }
 
+    private fun getViewModel() : ActionPresenter<SaveCompleteAction, EditRouteData> {
+        return ViewModelProvider(this, EditRoutePresenterFactory(resources.getString(R.string.map_quest_key))).get(EditRouteViewModel::class.java)
+    }
+
+    companion object Constants {
+        val currentZoomKey = "currentZoom"
+        val currentLatKey = "currentLat"
+        val currentLonKey = "currentLon"
+    }
 }

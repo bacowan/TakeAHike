@@ -1,9 +1,6 @@
 package com.example.takeahike.ui.edit.editor
 
 import android.view.MotionEvent
-import com.example.takeahike.presenter.EditRoutePresenter
-import com.example.takeahike.uiEvents.editRouteUIEvents.SetWaypointsUIEvent
-import org.osmdroid.api.IGeoPoint
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Overlay

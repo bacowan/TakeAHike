@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/current_hike"
-        android:name="com.example.takeahike.ui.hike.CurrentHike"
+        android:name="com.example.takeahike.ui.hike.CurrentHikeFragment"
         tools:layout="@layout/current_hike">
         <action
             android:id="@+id/action_current_hike_to_hike_ar"
@@ -25,10 +25,8 @@
             android:id="@+id/action_current_hike_to_select_route_list"
             app:destination="@id/select_route_list" />
         <argument
-            android:name="routeId"
-            app:argType="string"
-            app:nullable="true"
-            android:defaultValue="@null" />
+            android:name="currentHike"
+            app:argType="com.example.takeahike.backend.data.CurrentHike" />
     </fragment>
     <fragment
         android:id="@+id/select_route_list"

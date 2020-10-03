@@ -1,10 +1,9 @@
-package com.example.takeahike.viewmodels.editRoute
+package com.example.takeahike.viewData.currentRoute
 
-import org.osmdroid.api.IGeoPoint
 import org.osmdroid.bonuspack.routing.Road
 import org.osmdroid.util.GeoPoint
 
-class EditRouteViewModel(
+data class CurrentHikeData(
     val waypoints : List<GeoPoint>,
     val road : Road
 )
