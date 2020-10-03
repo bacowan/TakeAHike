@@ -40,6 +40,9 @@ class SelectRoute : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewManager = LinearLayoutManager(activity)
+
+        val viewModel: SelectRouteViewModel by viewModels()
+        viewModel.update(ListReadyUIEvent())
     }
 
     private fun update(data: SelectRouteData) {

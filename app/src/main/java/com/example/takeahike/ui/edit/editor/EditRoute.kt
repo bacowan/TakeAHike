@@ -152,9 +152,9 @@ class EditRoute : Fragment(), NameRoute.Listener {
         return ViewModelProvider(this, EditRoutePresenterFactory(resources.getString(R.string.map_quest_key))).get(EditRouteViewModel::class.java)
     }
 
-    companion object Constants {
-        val currentZoomKey = "currentZoom"
-        val currentLatKey = "currentLat"
-        val currentLonKey = "currentLon"
+    private companion object Constants {
+        const val currentZoomKey = "currentZoom"
+        const val currentLatKey = "currentLat"
+        const val currentLonKey = "currentLon"
     }
 }

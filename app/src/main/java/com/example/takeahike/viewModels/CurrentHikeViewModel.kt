@@ -13,7 +13,7 @@ import org.osmdroid.bonuspack.routing.Road
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.util.GeoPoint
 
-class CurrentHikeViewModel(mapQuestKey: String)
+class CurrentHikeViewModel(mapQuestKey: String, routeId: String)
     : ViewModel(), ActionPresenter<RecenterAction, CurrentHikeData> {
 
     override val action: MutableLiveData<ConsumableValue<RecenterAction>> by lazy {
@@ -27,11 +27,14 @@ class CurrentHikeViewModel(mapQuestKey: String)
     private val roadManager : RoadManager = MapQuestRoadManager(mapQuestKey)
     private val dataParser : ParseRouteListData = ParseRouteListData()
 
-    override fun update(event: Any) {
-        if (event is LoadRouteEvent && event.routeId != null) {
-            loadRoute(event.routeId)
-        }
+    init {
+        loadRoute(routeId)
     }
+
+    override fun update(event: Any) {
+        // TODO: Recenter action
+    }
+
     private fun loadRoute(routeId: String) {
         val route = dataParser.loadRoute(routeId)
         val viewModel = if (route != null) {

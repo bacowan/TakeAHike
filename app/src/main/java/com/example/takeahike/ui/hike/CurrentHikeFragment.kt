@@ -11,6 +11,7 @@ import androidx.navigation.fragment.navArgs
 import com.example.takeahike.R
 import com.example.takeahike.viewModels.CurrentHikeViewModel
 import com.example.takeahike.ui.edit.editor.ClickOverlay
+import com.example.takeahike.ui.edit.editor.EditRoute
 import com.example.takeahike.uiEvents.currentHikeUIEvents.LoadRouteEvent
 import com.example.takeahike.viewData.currentRoute.CurrentHikeData
 import com.example.takeahike.viewData.currentRoute.RecenterAction
@@ -44,14 +45,20 @@ class CurrentHikeFragment : Fragment() {
 
         map = view.findViewById(R.id.current_hike_map)
 
+        if (savedInstanceState != null) {
+            with(savedInstanceState) {
+                map.controller.setZoom(getDouble(currentZoomKey))
+                map.controller.setCenter(GeoPoint(
+                    getDouble(currentLatKey),
+                    getDouble(currentLonKey)
+                ))
+            }
+        }
+        else {
+            map.controller.setZoom(3.0)
+        }
+
         return view
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val viewModel = getViewModel()
-        viewModel.update(LoadRouteEvent(args.currentHike.routeId))
     }
 
     private fun update(viewmodel : CurrentHikeData) {
@@ -78,8 +85,21 @@ class CurrentHikeFragment : Fragment() {
         map.onPause()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putDouble(currentZoomKey, map.zoomLevelDouble)
+        outState.putDouble(currentLatKey, map.mapCenter.latitude)
+        outState.putDouble(currentLonKey, map.mapCenter.longitude)
+        super.onSaveInstanceState(outState)
+    }
+
     private fun getViewModel() : ActionPresenter<RecenterAction, CurrentHikeData> {
-        return ViewModelProvider(this, CurrentHikePresenterFactory(resources.getString(R.string.map_quest_key))).get(
+        return ViewModelProvider(this, CurrentHikePresenterFactory(resources.getString(R.string.map_quest_key), args.currentHike.routeId)).get(
             CurrentHikeViewModel::class.java)
+    }
+
+    private companion object Constants {
+        const val currentZoomKey = "currentZoom"
+        const val currentLatKey = "currentLat"
+        const val currentLonKey = "currentLon"
     }
 }
