@@ -8,9 +8,11 @@ import kotlin.math.*
 class LocationLogic {
     fun getPointAlongRoad(road: Road, distance: Double): GeoPoint? {
         var distanceLeft = distance
-        for (i in 1 until road.mNodes.size) {
-            val previousNode = road.mNodes.elementAtOrNull(i - 1)?.mLocation
-            val currentNode = road.mNodes.elementAtOrNull(i)?.mLocation
+
+
+        for (i in 1 until road.mRouteHigh.size) {
+            val previousNode = road.mRouteHigh.elementAtOrNull(i - 1)
+            val currentNode = road.mRouteHigh.elementAtOrNull(i)
             val currentSectionDistance = if (previousNode != null && currentNode != null) {
                 distanceBetween(previousNode, currentNode)
             }
@@ -21,7 +23,7 @@ class LocationLogic {
             if (currentSectionDistance != null && currentNode != null && previousNode != null) {
                 if (distanceLeft <= currentSectionDistance) {
                     return if (distanceLeft > 0) {
-                        getPointBetween(previousNode, currentNode, currentSectionDistance / distanceLeft)
+                        getPointBetween(previousNode, currentNode, distanceLeft / currentSectionDistance)
                     } else {
                         previousNode
                     }
@@ -66,14 +68,14 @@ class LocationLogic {
         val p1Lon = p1.longitude * Math.PI / 180
         val p2Lon = p2.longitude * Math.PI / 180
 
-        val x = ((cos(p1Lat) * cos(p1Lon)) + (cos(p2Lat) * cos(p2Lon))) * weight
-        val y = ((cos(p1Lat) * sin(p1Lon)) + (cos(p2Lat) * sin(p2Lon))) * weight
-        val z = (sin(p1.latitude) + sin(p2.latitude)) * weight
+        val x = ((cos(p1Lat) * cos(p1Lon) * (1 - weight)) + (cos(p2Lat) * cos(p2Lon) * weight))
+        val y = ((cos(p1Lat) * sin(p1Lon) * (1 - weight)) + (cos(p2Lat) * sin(p2Lon) * weight))
+        val z = (sin(p1Lat) * (1 - weight) + sin(p2Lat) * weight)
 
         val centerLon = atan2(y, x)
         val centerSqrt = sqrt(x * x + y * y)
         val centerLat = atan2(z, centerSqrt)
 
-        return GeoPoint(centerLat, centerLon)
+        return GeoPoint(centerLat * 180 / Math.PI, centerLon * 180 / Math.PI)
     }
 }

@@ -92,12 +92,13 @@ class CurrentHikeViewModel(mapQuestKey: String, routeId: String)
         }
         else {
             val distanceFromLastLocation = locationLogic.distanceBetween(lastLocation, positionEvent.location)
-            if (distanceFromLastLocation != null && distanceFromLastLocation > 0.015) {
+            if (distanceFromLastLocation != null && distanceFromLastLocation > 15) {
+                distanceTraveled += distanceFromLastLocation
                 lastRecordedLocation = positionEvent.location
                 data.value = CurrentHikeData(
                     routePoints,
                     road,
-                    GeoPoint(positionEvent.location.latitude, positionEvent.location.longitude)
+                    locationLogic.getPointAlongRoad(road, distanceTraveled)
                 )
             }
         }

@@ -1,11 +1,16 @@
 package com.example.takeahike.ui.hike
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.example.takeahike.R
@@ -39,11 +44,35 @@ class NoCurrentHike : Fragment() {
         }
         else {
             val button = view.findViewById<Button>(R.id.new_hike_button)
-            button.setOnClickListener {
-                val action =
-                    NoCurrentHikeDirections.actionSelectHikeToSelectRouteList()
-                view.findNavController().navigate(action)
+            button.setOnClickListener { newHikeClick(view) }
+        }
+    }
+
+    private fun newHikeClick(view: View) {
+        if (ContextCompat.checkSelfPermission(
+                view.context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED) {
+            goToNewHike(view)
+        }
+        else {
+            requetPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+    }
+
+    val requetPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        view?.let {
+            if (isGranted) {
+                goToNewHike(it)
+            } else {
+                // TODO: handle selecting no for permission request
             }
         }
+    }
+
+    private fun goToNewHike(view: View) {
+        val action =
+            NoCurrentHikeDirections.actionSelectHikeToSelectRouteList()
+        view.findNavController().navigate(action)
     }
 }

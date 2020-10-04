@@ -41,7 +41,7 @@ class CurrentHikeFragment : Fragment() {
         viewModel.data.observe(this, Observer { update(it) })
         viewModel.action.observe(this, Observer { it.handle { value -> updateAction(value) }})
 
-        currentLocationIcon = resources.getDrawable(R.drawable.ic_my_location_black_24dp, null)
+        currentLocationIcon = resources.getDrawable(R.drawable.ic_person_pin_circle_black_48dp, null)
     }
 
     override fun onCreateView(
@@ -127,7 +127,7 @@ class CurrentHikeFragment : Fragment() {
             val marker = Marker(map)
             marker.position = viewmodel.currentPosition
             marker.icon = currentLocationIcon
-            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
             map.overlays.add(marker)
         }
 
