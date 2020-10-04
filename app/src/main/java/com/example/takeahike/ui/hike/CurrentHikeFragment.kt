@@ -1,6 +1,8 @@
 package com.example.takeahike.ui.hike
 
+import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,29 +13,35 @@ import androidx.navigation.fragment.navArgs
 import com.example.takeahike.R
 import com.example.takeahike.viewModels.CurrentHikeViewModel
 import com.example.takeahike.ui.edit.editor.ClickOverlay
-import com.example.takeahike.ui.edit.editor.EditRoute
-import com.example.takeahike.uiEvents.currentHikeUIEvents.LoadRouteEvent
+import com.example.takeahike.ui.edit.editor.OnMarkerDragListener
+import com.example.takeahike.uiEvents.currentHikeUIEvents.UpdatePositionEvent
 import com.example.takeahike.viewData.currentRoute.CurrentHikeData
 import com.example.takeahike.viewData.currentRoute.RecenterAction
-import com.example.takeahike.viewData.editRoute.EditRouteData
-import com.example.takeahike.viewData.editRoute.SaveCompleteAction
 import com.example.takeahike.viewModels.ActionPresenter
-import com.example.takeahike.viewModels.EditRouteViewModel
 import com.example.takeahike.viewModels.factories.CurrentHikePresenterFactory
-import com.example.takeahike.viewModels.factories.EditRoutePresenterFactory
+import com.google.android.gms.location.*
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
 
 class CurrentHikeFragment : Fragment() {
     private lateinit var map: MapView
+    private lateinit var currentLocationIcon : Drawable
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var isRequestingLocationUpdates = false
+
     private val args: CurrentHikeFragmentArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        activity?.let { fusedLocationClient = LocationServices.getFusedLocationProviderClient(it) }
+
         val viewModel = getViewModel()
         viewModel.data.observe(this, Observer { update(it) })
         viewModel.action.observe(this, Observer { it.handle { value -> updateAction(value) }})
+
+        currentLocationIcon = resources.getDrawable(R.drawable.ic_my_location_black_24dp, null)
     }
 
     override fun onCreateView(
@@ -61,22 +69,9 @@ class CurrentHikeFragment : Fragment() {
         return view
     }
 
-    private fun update(viewmodel : CurrentHikeData) {
-        map.overlays.removeIf { it !is ClickOverlay }
-
-        val roadOverlay = RoadManager.buildRoadOverlay(viewmodel.road)
-        map.overlays.add(roadOverlay)
-
-        map.invalidate()
-    }
-
-    private fun updateAction(action : RecenterAction) {
-        map.controller.setCenter(GeoPoint(action.lat, action.lon))
-        map.controller.setZoom(18.0)
-    }
-
     override fun onResume() {
         super.onResume()
+        startLocationUpdates()
         map.onResume()
     }
 
@@ -92,9 +87,56 @@ class CurrentHikeFragment : Fragment() {
         super.onSaveInstanceState(outState)
     }
 
+    private fun startLocationUpdates() {
+        if (!isRequestingLocationUpdates) {
+            fusedLocationClient.requestLocationUpdates(
+                LocationRequest.create()?.apply {
+                    interval = 10000
+                    priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+                },
+                onLocationUpdate(),
+                Looper.getMainLooper() // TODO: how does this work?
+            )
+            isRequestingLocationUpdates = true
+        }
+    }
+
+    private fun onLocationUpdate() : LocationCallback {
+        return object : LocationCallback() {
+            override fun onLocationResult(location: LocationResult?) {
+                val viewModel = getViewModel()
+                if (location != null) {
+                    viewModel.update(UpdatePositionEvent(location.lastLocation))
+                }
+            }
+        }
+    }
+
     private fun getViewModel() : ActionPresenter<RecenterAction, CurrentHikeData> {
         return ViewModelProvider(this, CurrentHikePresenterFactory(resources.getString(R.string.map_quest_key), args.currentHike.routeId)).get(
             CurrentHikeViewModel::class.java)
+    }
+
+    private fun update(viewmodel : CurrentHikeData) {
+        map.overlays.removeIf { it !is ClickOverlay }
+
+        val roadOverlay = RoadManager.buildRoadOverlay(viewmodel.road)
+        map.overlays.add(roadOverlay)
+
+        if (viewmodel.currentPosition != null) {
+            val marker = Marker(map)
+            marker.position = viewmodel.currentPosition
+            marker.icon = currentLocationIcon
+            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+            map.overlays.add(marker)
+        }
+
+        map.invalidate()
+    }
+
+    private fun updateAction(action : RecenterAction) {
+        map.controller.setCenter(GeoPoint(action.lat, action.lon))
+        map.controller.setZoom(18.0)
     }
 
     private companion object Constants {

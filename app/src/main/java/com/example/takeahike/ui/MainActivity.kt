@@ -26,7 +26,7 @@ class MainActivity : FragmentActivity() {
             StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
         // TODO: change
-        Configuration.getInstance().setUserAgentValue("changeme")
+        Configuration.getInstance().userAgentValue = "changeme"
         //Configuration.getInstance().load(applicationContext, PreferenceManager.getDefaultSharedPreferences(applicationContext));
 
         setContentView(R.layout.activity_main)

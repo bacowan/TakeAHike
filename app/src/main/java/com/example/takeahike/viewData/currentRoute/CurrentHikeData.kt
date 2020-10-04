@@ -5,5 +5,6 @@ import org.osmdroid.util.GeoPoint
 
 data class CurrentHikeData(
     val waypoints : List<GeoPoint>,
-    val road : Road
+    val road : Road,
+    val currentPosition: GeoPoint?
 )

@@ -6,5 +6,5 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 class CurrentHike(
     var routeId: String,
-    var percentComplete: Double
+    var distanceTraveled: Double
 ) : Parcelable
