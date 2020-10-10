@@ -78,10 +78,9 @@ class EditRoute : Fragment(), NameRoute.Listener {
         super.onViewCreated(view, savedInstanceState)
 
         val confirmRouteButton: View = view.findViewById(R.id.confirm_route_fab)
-
         confirmRouteButton.setOnClickListener {
             val dialog = NameRoute()
-            dialog.setTargetFragment(this, 0)
+            //dialog.setTargetFragment(this, 0)
             dialog.show(parentFragmentManager, "NameRouteFragment")
         }
 

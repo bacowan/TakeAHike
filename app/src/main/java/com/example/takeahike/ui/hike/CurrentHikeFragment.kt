@@ -9,11 +9,13 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.takeahike.R
 import com.example.takeahike.viewModels.CurrentHikeViewModel
 import com.example.takeahike.ui.edit.editor.ClickOverlay
 import com.example.takeahike.ui.edit.editor.OnMarkerDragListener
+import com.example.takeahike.uiEvents.currentHikeUIEvents.RecenterEvent
 import com.example.takeahike.uiEvents.currentHikeUIEvents.UpdatePositionEvent
 import com.example.takeahike.viewData.currentRoute.CurrentHikeData
 import com.example.takeahike.viewData.currentRoute.RecenterAction
@@ -63,10 +65,27 @@ class CurrentHikeFragment : Fragment() {
             }
         }
         else {
-            map.controller.setZoom(3.0)
+            map.controller.setZoom(18.0)
         }
 
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val viewArButton: View = view.findViewById(R.id.view_ar_button)
+        viewArButton.setOnClickListener {
+            val action =
+                CurrentHikeFragmentDirections.actionCurrentHikeToHikeAr()
+            view.findNavController().navigate(action)
+        }
+
+        val recenterButton: View = view.findViewById(R.id.recenter_button)
+        recenterButton.setOnClickListener {
+            val viewModel = getViewModel()
+            viewModel.update(RecenterEvent())
+        }
     }
 
     override fun onResume() {
@@ -136,7 +155,6 @@ class CurrentHikeFragment : Fragment() {
 
     private fun updateAction(action : RecenterAction) {
         map.controller.setCenter(GeoPoint(action.lat, action.lon))
-        map.controller.setZoom(18.0)
     }
 
     private companion object Constants {

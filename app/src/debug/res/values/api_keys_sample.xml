@@ -1,5 +1,3 @@
 <resources>
-    <!-- TODO: change the API key and remove the raw value from version control -->
-    <!--<string name="google_maps_key" templateMergeStrategy="preserve" translatable="false"></string>-->
     <!--<string name="map_quest_key" templateMergeStrategy="preserve" translatable="false"></string>-->
 </resources>

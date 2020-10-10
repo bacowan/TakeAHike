@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.takeahike.backend.utilities.LocationLogic
 import com.example.takeahike.backend.utilities.ParseRouteListData
+import com.example.takeahike.uiEvents.currentHikeUIEvents.RecenterEvent
 import com.example.takeahike.uiEvents.currentHikeUIEvents.UpdatePositionEvent
 import com.example.takeahike.viewData.currentRoute.CurrentHikeData
 import com.example.takeahike.viewData.currentRoute.RecenterAction
@@ -20,6 +21,7 @@ class CurrentHikeViewModel(mapQuestKey: String, routeId: String)
     private var lastRecordedLocation: Location? = null
     private var routePoints: List<GeoPoint> = listOf()
     private var road: Road = Road()
+    private var currentHikePosition: GeoPoint? = null
 
     override val action: MutableLiveData<ConsumableValue<RecenterAction>> by lazy {
         MutableLiveData<ConsumableValue<RecenterAction>>()
@@ -41,7 +43,9 @@ class CurrentHikeViewModel(mapQuestKey: String, routeId: String)
         if (event is UpdatePositionEvent) {
             updatePosition(event)
         }
-        // TODO: Recenter action
+        else if (event is RecenterEvent) {
+            recenterView()
+        }
     }
 
     private fun loadRoute(routeId: String) {
@@ -73,16 +77,10 @@ class CurrentHikeViewModel(mapQuestKey: String, routeId: String)
 
         road = viewModel.road
         routePoints = viewModel.waypoints
-
-        val recenterAction = route?.wayPoints?.firstOrNull()?.let {
-            RecenterAction(it.lat, it.lon)
-        }
+        currentHikePosition = viewModel.currentPosition
 
         data.value = viewModel
-
-        if (recenterAction != null) {
-            action.value = ConsumableValue(recenterAction)
-        }
+        recenterView()
     }
 
     private fun updatePosition(positionEvent: UpdatePositionEvent) {
@@ -101,6 +99,12 @@ class CurrentHikeViewModel(mapQuestKey: String, routeId: String)
                     locationLogic.getPointAlongRoad(road, distanceTraveled)
                 )
             }
+        }
+    }
+
+    private fun recenterView() {
+        currentHikePosition?.let {
+            action.value = ConsumableValue(RecenterAction(it.latitude, it.longitude))
         }
     }
 }
