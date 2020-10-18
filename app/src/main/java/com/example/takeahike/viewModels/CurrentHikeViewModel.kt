@@ -1,27 +1,40 @@
 package com.example.takeahike.viewModels
 
-import android.location.Location
+import android.app.Application
+import android.content.Context
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.takeahike.R
+import com.example.takeahike.backend.data.CurrentHike
 import com.example.takeahike.backend.utilities.LocationLogic
 import com.example.takeahike.backend.utilities.ParseRouteListData
 import com.example.takeahike.uiEvents.currentHikeUIEvents.RecenterEvent
 import com.example.takeahike.uiEvents.currentHikeUIEvents.UpdatePositionEvent
 import com.example.takeahike.viewData.currentRoute.CurrentHikeData
 import com.example.takeahike.viewData.currentRoute.RecenterAction
+import com.example.takeahike.backend.utilities.*
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.osmdroid.bonuspack.routing.MapQuestRoadManager
 import org.osmdroid.bonuspack.routing.Road
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.util.GeoPoint
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 
-class CurrentHikeViewModel(mapQuestKey: String, routeId: String)
-    : ViewModel(), ActionPresenter<RecenterAction, CurrentHikeData> {
+class CurrentHikeViewModel(
+        application: Application,
+        mapQuestKey: String,
+        private val currentHikeFileName: String)
+    : AndroidViewModel(application), ActionPresenter<RecenterAction, CurrentHikeData> {
 
-    private var distanceTraveled : Double = 0.0
-    private var lastRecordedLocation: Location? = null
+    private var currentHike : CurrentHike
     private var routePoints: List<GeoPoint> = listOf()
     private var road: Road = Road()
-    private var currentHikePosition: GeoPoint? = null
+    private val roadManager : RoadManager = MapQuestRoadManager(mapQuestKey)
+    private val dataParser : ParseRouteListData = ParseRouteListData()
+    private val locationLogic = LocationLogic()
 
     override val action: MutableLiveData<ConsumableValue<RecenterAction>> by lazy {
         MutableLiveData<ConsumableValue<RecenterAction>>()
@@ -31,12 +44,9 @@ class CurrentHikeViewModel(mapQuestKey: String, routeId: String)
         MutableLiveData<CurrentHikeData>()
     }
 
-    private val roadManager : RoadManager = MapQuestRoadManager(mapQuestKey)
-    private val dataParser : ParseRouteListData = ParseRouteListData()
-    private val locationLogic = LocationLogic()
-
     init {
-        loadRoute(routeId)
+        currentHike = loadCurrentHike()
+        recenterView()
     }
 
     override fun update(event: Any) {
@@ -48,23 +58,34 @@ class CurrentHikeViewModel(mapQuestKey: String, routeId: String)
         }
     }
 
-    private fun loadRoute(routeId: String) {
-        val route = dataParser.loadRoute(routeId)
-        val viewModel = if (route != null) {
-            val points = ArrayList(route.wayPoints.map { GeoPoint(it.lat, it.lon) })
-            val road = if (points.count() > 1) {
-                roadManager.getRoad(points)
+    private fun loadCurrentHike() : CurrentHike {
+        val currentHike = loadCurrentHike(getApplication<Application>().applicationContext, currentHikeFileName)
+        val viewData = if (currentHike != null) {
+            val route = dataParser.loadRoute(currentHike.routeId)
+            if (route != null) {
+                val points = ArrayList(route.wayPoints.map { GeoPoint(it.lat, it.lon) })
+                val road = if (points.count() > 1) {
+                    roadManager.getRoad(points)
+                }
+                else {
+                    Road()
+                }
+                val currentPoint = locationLogic.getPointAlongRoad(road, currentHike.distanceTraveled)
+
+                CurrentHikeData(
+                    points,
+                    road,
+                    currentPoint
+                )
             }
             else {
-                Road()
+                //TODO: Error handling
+                CurrentHikeData(
+                    listOf(),
+                    Road(),
+                    null
+                )
             }
-            val currentPoint = locationLogic.getPointAlongRoad(road, distanceTraveled)
-
-            CurrentHikeData(
-                points,
-                road,
-                currentPoint
-            )
         }
         else {
             //TODO: Error handling
@@ -75,35 +96,29 @@ class CurrentHikeViewModel(mapQuestKey: String, routeId: String)
             )
         }
 
-        road = viewModel.road
-        routePoints = viewModel.waypoints
-        currentHikePosition = viewModel.currentPosition
+        road = viewData.road
+        routePoints = viewData.waypoints
 
-        data.value = viewModel
-        recenterView()
+        data.value = viewData
+        return CurrentHike(
+            currentHike?.routeId ?: "",
+            currentHike?.lastRecordedLocation,
+            currentHike?.distanceTraveled ?: 0.0)
     }
 
     private fun updatePosition(positionEvent: UpdatePositionEvent) {
-        val lastLocation = lastRecordedLocation
-        if (lastLocation == null) {
-            lastRecordedLocation = positionEvent.location
-        }
-        else {
-            val distanceFromLastLocation = locationLogic.distanceBetween(lastLocation, positionEvent.location)
-            if (distanceFromLastLocation != null && distanceFromLastLocation > 15) {
-                distanceTraveled += distanceFromLastLocation
-                lastRecordedLocation = positionEvent.location
-                data.value = CurrentHikeData(
-                    routePoints,
-                    road,
-                    locationLogic.getPointAlongRoad(road, distanceTraveled)
-                )
-            }
+        if (locationLogic.updateCurrentHike(currentHike, positionEvent.location)) {
+            data.value = CurrentHikeData(
+                routePoints,
+                road,
+                locationLogic.getPointAlongRoad(road, currentHike.distanceTraveled))
+
+            saveCurrentHike(currentHike, getApplication<Application>().applicationContext, currentHikeFileName)
         }
     }
 
     private fun recenterView() {
-        currentHikePosition?.let {
+        locationLogic.getPointAlongRoad(road, currentHike.distanceTraveled)?.let {
             action.value = ConsumableValue(RecenterAction(it.latitude, it.longitude))
         }
     }

@@ -1,10 +1,10 @@
 package com.example.takeahike.backend.data
 
-import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.serialization.Serializable
 
-@Parcelize
+@Serializable
 class CurrentHike(
     var routeId: String,
+    var lastRecordedLocation: LatLng? = null,
     var distanceTraveled: Double
-) : Parcelable
+)

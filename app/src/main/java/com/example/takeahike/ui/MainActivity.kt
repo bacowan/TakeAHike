@@ -6,7 +6,6 @@ import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.fragment.app.FragmentActivity
 import com.example.takeahike.R
-import com.example.takeahike.backend.utilities.CurrentHikeLogic
 import com.example.takeahike.viewModels.MainActivityViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import io.realm.Realm
@@ -14,9 +13,6 @@ import org.osmdroid.config.Configuration
 
 
 class MainActivity : FragmentActivity() {
-
-    private val currentHikeLogic : CurrentHikeLogic = CurrentHikeLogic()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

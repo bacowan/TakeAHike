@@ -1,9 +1,12 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: "androidx.navigation.safeargs.kotlin"
-apply plugin: 'realm-android'
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'kotlin-android-extensions'
+    id 'androidx.navigation.safeargs.kotlin'
+    id 'realm-android'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.10'
+}
 
 android {
     compileSdkVersion 29
@@ -68,4 +71,6 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0'
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0"
 }

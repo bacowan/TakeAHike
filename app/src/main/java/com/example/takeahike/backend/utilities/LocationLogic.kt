@@ -1,6 +1,8 @@
 package com.example.takeahike.backend.utilities
 
 import android.location.Location
+import com.example.takeahike.backend.data.CurrentHike
+import com.example.takeahike.backend.data.LatLng
 import org.osmdroid.bonuspack.routing.Road
 import org.osmdroid.util.GeoPoint
 import kotlin.math.*
@@ -44,16 +46,16 @@ class LocationLogic {
         return distanceBetween(p1.latitude, p1.longitude, p2.latitude, p2.longitude)
     }
 
-    fun distanceBetween(p1: Location, p2: Location) : Double? {
-        return distanceBetween(p1.latitude, p1.longitude, p2.latitude, p2.longitude)
+    fun distanceBetween(p1: LatLng, p2: LatLng) : Double? {
+        return distanceBetween(p1.lat, p1.lon, p2.lat, p2.lon)
     }
 
-    fun distanceBetween(p1: GeoPoint, p2: Location) : Double? {
-        return distanceBetween(p1.latitude, p1.longitude, p2.latitude, p2.longitude)
+    fun distanceBetween(p1: GeoPoint, p2: LatLng) : Double? {
+        return distanceBetween(p1.latitude, p1.longitude, p2.lat, p2.lon)
     }
 
-    fun distanceBetween(p1: Location, p2: GeoPoint) : Double? {
-        return distanceBetween(p1.latitude, p1.longitude, p2.latitude, p2.longitude)
+    fun distanceBetween(p1: LatLng, p2: GeoPoint) : Double? {
+        return distanceBetween(p1.lat, p1.lon, p2.latitude, p2.longitude)
     }
 
     private fun distanceBetween(p1Lat: Double, p1Lon: Double, p2Lat: Double, p2Lon: Double) : Double? {
@@ -77,5 +79,25 @@ class LocationLogic {
         val centerLat = atan2(z, centerSqrt)
 
         return GeoPoint(centerLat * 180 / Math.PI, centerLon * 180 / Math.PI)
+    }
+
+    fun updateCurrentHike(
+        currentHike: CurrentHike,
+        location: LatLng,
+    ) : Boolean {
+        val lastRecordedLocation = currentHike.lastRecordedLocation
+        return if (lastRecordedLocation == null) {
+            currentHike.lastRecordedLocation = location
+            true
+        } else {
+            val distanceFromLastLocation = distanceBetween(lastRecordedLocation, location)
+            if (distanceFromLastLocation != null && distanceFromLastLocation > 15) {
+                currentHike.distanceTraveled += distanceFromLastLocation
+                currentHike.lastRecordedLocation = location
+                true
+            } else {
+                false
+            }
+        }
     }
 }

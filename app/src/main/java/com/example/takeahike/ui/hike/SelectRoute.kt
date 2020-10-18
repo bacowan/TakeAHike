@@ -11,13 +11,12 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.takeahike.R
-import com.example.takeahike.backend.data.CurrentHike
 import com.example.takeahike.viewModels.SelectRouteViewModel
 import com.example.takeahike.ui.adapters.AdapterItemClickListener
 import com.example.takeahike.ui.adapters.RouteListAdapter
 import com.example.takeahike.uiEvents.routeListUIEvents.ListReadyUIEvent
+import com.example.takeahike.uiEvents.routeListUIEvents.StartNewHikeUIEvent
 import com.example.takeahike.viewData.selectRoute.SelectRouteData
-import com.example.takeahike.viewModels.EditRoutesListViewModel
 
 class SelectRoute : Fragment() {
     private lateinit var viewManager: RecyclerView.LayoutManager
@@ -50,12 +49,10 @@ class SelectRoute : Fragment() {
             data.routes.map { it.name }.toTypedArray(),
             object: AdapterItemClickListener {
                 override fun onItemClick(view: View, position: Int) {
-                    val currentHike = CurrentHike(
-                        data.routes[position].id,
-                        0.0
-                    )
+                    val viewModel: SelectRouteViewModel by viewModels()
+                    viewModel.update(StartNewHikeUIEvent(data.routes[position].id))
                     val action =
-                        SelectRouteDirections.actionSelectRouteListToCurrentHike(currentHike)
+                        SelectRouteDirections.actionSelectRouteListToCurrentHike()
                     view.findNavController().navigate(action)
                 }
             }

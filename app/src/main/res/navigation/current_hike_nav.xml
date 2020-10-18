@@ -19,13 +19,17 @@
         android:name="com.example.takeahike.ui.hike.CurrentHikeFragment"
         tools:layout="@layout/current_hike">
         <action
-            android:id="@+id/action_current_hike_to_select_route_list"
-            app:destination="@id/select_route_list" />
-        <argument
-            android:name="currentHike"
-            app:argType="com.example.takeahike.backend.data.CurrentHike" />
+            android:id="@+id/action_current_hike_to_hike_ar"
+            app:destination="@id/hike_ar" />
     </fragment>
     <fragment
         android:id="@+id/select_route_list"
-        android:name="com.example.takeahike.ui.hike.SelectRoute"/>
+        android:name="com.example.takeahike.ui.hike.SelectRoute">
+        <action
+            android:id="@+id/action_select_route_list_to_current_hike"
+            app:destination="@id/current_hike" />
+    </fragment>
+    <fragment
+        android:id="@+id/hike_ar"
+        android:name="com.example.takeahike.ui.hike.HikeAR" />
 </navigation>

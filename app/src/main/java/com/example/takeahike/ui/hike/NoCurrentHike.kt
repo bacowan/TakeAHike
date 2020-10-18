@@ -1,28 +1,25 @@
 package com.example.takeahike.ui.hike
 
 import android.Manifest
-import android.content.Context
+import android.app.Application
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.example.takeahike.R
 import com.example.takeahike.backend.data.CurrentHike
-import com.example.takeahike.backend.utilities.CurrentHikeLogic
-import com.google.gson.Gson
+import com.example.takeahike.backend.utilities.loadCurrentHike
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import java.io.ObjectInputStream
 
 class NoCurrentHike : Fragment() {
-
-    private val currentHikeLogic : CurrentHikeLogic = CurrentHikeLogic()
-    private val gson = Gson()
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -32,14 +29,9 @@ class NoCurrentHike : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)
-        val currentRoute = sharedPref?.getString(getString(R.string.current_hike_route_id), null)
-        val hikeCompletion = sharedPref?.getFloat(getString(R.string.current_hike_progress), 0F)
-
-        if (currentRoute != null && hikeCompletion != null) {
+        if (currentHikeExists()) {
             val action =
-                NoCurrentHikeDirections.actionNoCurrentHikeToCurrentHike(
-                    CurrentHike(currentRoute, hikeCompletion.toDouble()))
+                NoCurrentHikeDirections.actionNoCurrentHikeToCurrentHike()
             view.findNavController().navigate(action)
         }
         else {
@@ -56,11 +48,11 @@ class NoCurrentHike : Fragment() {
             goToNewHike(view)
         }
         else {
-            requetPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
     }
 
-    val requetPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         view?.let {
             if (isGranted) {
                 goToNewHike(it)
@@ -74,5 +66,10 @@ class NoCurrentHike : Fragment() {
         val action =
             NoCurrentHikeDirections.actionSelectHikeToSelectRouteList()
         view.findNavController().navigate(action)
+    }
+
+    private fun currentHikeExists() : Boolean {
+        val currentHikeFileName = getString(R.string.current_hike_file_name)
+        return context?.let { loadCurrentHike(it, currentHikeFileName) } != null
     }
 }

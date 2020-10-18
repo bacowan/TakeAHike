@@ -1,5 +1,6 @@
 package com.example.takeahike.ui.hike
 
+import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Looper
@@ -12,6 +13,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.takeahike.R
+import com.example.takeahike.backend.data.CurrentHike
+import com.example.takeahike.backend.data.LatLng
 import com.example.takeahike.viewModels.CurrentHikeViewModel
 import com.example.takeahike.ui.edit.editor.ClickOverlay
 import com.example.takeahike.ui.edit.editor.OnMarkerDragListener
@@ -26,14 +29,14 @@ import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 
 class CurrentHikeFragment : Fragment() {
     private lateinit var map: MapView
     private lateinit var currentLocationIcon : Drawable
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var isRequestingLocationUpdates = false
-
-    private val args: CurrentHikeFragmentArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -125,15 +128,22 @@ class CurrentHikeFragment : Fragment() {
             override fun onLocationResult(location: LocationResult?) {
                 val viewModel = getViewModel()
                 if (location != null) {
-                    viewModel.update(UpdatePositionEvent(location.lastLocation))
+                    viewModel.update(UpdatePositionEvent(LatLng(
+                        location.lastLocation.latitude,
+                        location.lastLocation.longitude)))
                 }
             }
         }
     }
 
     private fun getViewModel() : ActionPresenter<RecenterAction, CurrentHikeData> {
-        return ViewModelProvider(this, CurrentHikePresenterFactory(resources.getString(R.string.map_quest_key), args.currentHike.routeId)).get(
-            CurrentHikeViewModel::class.java)
+        return ViewModelProvider(
+                this,
+                CurrentHikePresenterFactory(
+                    activity?.application!!,
+                    resources.getString(R.string.map_quest_key),
+                    resources.getString(R.string.current_hike_file_name)))
+            .get(CurrentHikeViewModel::class.java)
     }
 
     private fun update(viewmodel : CurrentHikeData) {
