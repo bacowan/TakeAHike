@@ -26,6 +26,7 @@ class LocationUpdater(
     }
 
     fun endLocationUpdates() {
+        isRequestingLocationUpdates = false
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 }
