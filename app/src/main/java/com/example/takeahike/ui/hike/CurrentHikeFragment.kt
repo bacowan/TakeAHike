@@ -99,6 +99,7 @@ class CurrentHikeFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
+        fusedLocationClient.removeLocationUpdates(locationUpdateCallback)
         map.onPause()
     }
 
@@ -116,22 +117,25 @@ class CurrentHikeFragment : Fragment() {
                     interval = 10000
                     priority = LocationRequest.PRIORITY_HIGH_ACCURACY
                 },
-                onLocationUpdate(),
+                locationUpdateCallback,
                 Looper.getMainLooper() // TODO: how does this work?
             )
             isRequestingLocationUpdates = true
         }
     }
 
-    private fun onLocationUpdate() : LocationCallback {
-        return object : LocationCallback() {
-            override fun onLocationResult(location: LocationResult?) {
-                val viewModel = getViewModel()
-                if (location != null) {
-                    viewModel.update(UpdatePositionEvent(LatLng(
-                        location.lastLocation.latitude,
-                        location.lastLocation.longitude)))
-                }
+    private val locationUpdateCallback: LocationCallback = object : LocationCallback() {
+        override fun onLocationResult(location: LocationResult?) {
+            val viewModel = getViewModel()
+            if (location != null) {
+                viewModel.update(
+                    UpdatePositionEvent(
+                        LatLng(
+                            location.lastLocation.latitude,
+                            location.lastLocation.longitude
+                        )
+                    )
+                )
             }
         }
     }
@@ -141,8 +145,7 @@ class CurrentHikeFragment : Fragment() {
                 this,
                 CurrentHikePresenterFactory(
                     activity?.application!!,
-                    resources.getString(R.string.map_quest_key),
-                    resources.getString(R.string.current_hike_file_name)))
+                    resources.getString(R.string.map_quest_key)))
             .get(CurrentHikeViewModel::class.java)
     }
 

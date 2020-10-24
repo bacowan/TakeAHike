@@ -1,10 +1,8 @@
 package com.example.takeahike.viewModels
 
 import android.app.Application
-import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.example.takeahike.R
 import com.example.takeahike.backend.data.CurrentHike
 import com.example.takeahike.backend.utilities.LocationLogic
@@ -14,19 +12,14 @@ import com.example.takeahike.uiEvents.currentHikeUIEvents.UpdatePositionEvent
 import com.example.takeahike.viewData.currentRoute.CurrentHikeData
 import com.example.takeahike.viewData.currentRoute.RecenterAction
 import com.example.takeahike.backend.utilities.*
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import org.osmdroid.bonuspack.routing.MapQuestRoadManager
 import org.osmdroid.bonuspack.routing.Road
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.util.GeoPoint
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
 
 class CurrentHikeViewModel(
         application: Application,
-        mapQuestKey: String,
-        private val currentHikeFileName: String)
+        mapQuestKey: String)
     : AndroidViewModel(application), ActionPresenter<RecenterAction, CurrentHikeData> {
 
     private var currentHike : CurrentHike
@@ -59,7 +52,10 @@ class CurrentHikeViewModel(
     }
 
     private fun loadCurrentHike() : CurrentHike {
-        val currentHike = loadCurrentHike(getApplication<Application>().applicationContext, currentHikeFileName)
+        val applicationContext = getApplication<Application>().applicationContext
+        val currentHike = loadCurrentHike(
+            applicationContext,
+            applicationContext.resources.getString(R.string.current_hike_file_name))
         val viewData = if (currentHike != null) {
             val route = dataParser.loadRoute(currentHike.routeId)
             if (route != null) {
@@ -113,7 +109,11 @@ class CurrentHikeViewModel(
                 road,
                 locationLogic.getPointAlongRoad(road, currentHike.distanceTraveled))
 
-            saveCurrentHike(currentHike, getApplication<Application>().applicationContext, currentHikeFileName)
+            val applicationContext = getApplication<Application>().applicationContext
+            saveCurrentHike(
+                currentHike,
+                applicationContext,
+                applicationContext.resources.getString(R.string.current_hike_file_name))
         }
     }
 

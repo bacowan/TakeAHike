@@ -1,7 +1,6 @@
 package com.example.takeahike.ui.hike
 
 import android.Manifest
-import android.app.Application
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,11 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.example.takeahike.R
-import com.example.takeahike.backend.data.CurrentHike
 import com.example.takeahike.backend.utilities.loadCurrentHike
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
-import java.io.ObjectInputStream
 
 class NoCurrentHike : Fragment() {
     override fun onCreateView(
@@ -29,15 +24,22 @@ class NoCurrentHike : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val continueHikeButton = view.findViewById<Button>(R.id.continue_hike_button)
         if (currentHikeExists()) {
-            val action =
-                NoCurrentHikeDirections.actionNoCurrentHikeToCurrentHike()
-            view.findNavController().navigate(action)
+            continueHikeButton.setOnClickListener { continueHikeClick(view) }
         }
         else {
-            val button = view.findViewById<Button>(R.id.new_hike_button)
-            button.setOnClickListener { newHikeClick(view) }
+            continueHikeButton.isEnabled = false
         }
+
+        val newHikeButton = view.findViewById<Button>(R.id.new_hike_button)
+        newHikeButton.setOnClickListener { newHikeClick(view) }
+    }
+
+    private fun continueHikeClick(view: View) {
+        val action =
+            NoCurrentHikeDirections.actionNoCurrentHikeToCurrentHike()
+        view.findNavController().navigate(action)
     }
 
     private fun newHikeClick(view: View) {

@@ -18,9 +18,7 @@ fun loadCurrentHike(context: Context, fileName: String) : CurrentHike? {
     return if (fileExists(context, fileName)) {
         context.openFileInput(fileName)?.bufferedReader()?.useLines {
             try {
-                Json.decodeFromString<CurrentHike>(it.fold("") { a, b ->
-                    "$a\n$b"
-                })
+                Json.decodeFromString<CurrentHike>(it.joinToString("\n"))
             }
             catch (e: Exception) {
                 null
