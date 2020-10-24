@@ -61,6 +61,8 @@ class CurrentHikeViewModel(
             if (route != null) {
                 val points = ArrayList(route.wayPoints.map { GeoPoint(it.lat, it.lon) })
                 val road = if (points.count() > 1) {
+                    // TODO: use the saved road, not the waypoints
+                    //  (that way we don't have to call the API every time)
                     roadManager.getRoad(points)
                 }
                 else {

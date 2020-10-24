@@ -15,6 +15,7 @@ import androidx.navigation.fragment.navArgs
 import com.example.takeahike.R
 import com.example.takeahike.backend.data.CurrentHike
 import com.example.takeahike.backend.data.LatLng
+import com.example.takeahike.ui.LocationUpdater
 import com.example.takeahike.viewModels.CurrentHikeViewModel
 import com.example.takeahike.ui.edit.editor.ClickOverlay
 import com.example.takeahike.ui.edit.editor.OnMarkerDragListener
@@ -36,12 +37,13 @@ import java.io.ObjectOutputStream
 class CurrentHikeFragment : Fragment() {
     private lateinit var map: MapView
     private lateinit var currentLocationIcon : Drawable
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private var isRequestingLocationUpdates = false
+    private lateinit var locationUpdater: LocationUpdater
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        activity?.let { fusedLocationClient = LocationServices.getFusedLocationProviderClient(it) }
+        activity?.let { locationUpdater = LocationUpdater(
+            LocationServices.getFusedLocationProviderClient(it),
+            locationUpdateCallback) }
 
         val viewModel = getViewModel()
         viewModel.data.observe(this, { update(it) })
@@ -96,13 +98,13 @@ class CurrentHikeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        startLocationUpdates()
+        locationUpdater.startLocationUpdates()
         map.onResume()
     }
 
     override fun onPause() {
         super.onPause()
-        fusedLocationClient.removeLocationUpdates(locationUpdateCallback)
+        locationUpdater.endLocationUpdates()
         map.onPause()
     }
 
@@ -111,20 +113,6 @@ class CurrentHikeFragment : Fragment() {
         outState.putDouble(currentLatKey, map.mapCenter.latitude)
         outState.putDouble(currentLonKey, map.mapCenter.longitude)
         super.onSaveInstanceState(outState)
-    }
-
-    private fun startLocationUpdates() {
-        if (!isRequestingLocationUpdates) {
-            fusedLocationClient.requestLocationUpdates(
-                LocationRequest.create()?.apply {
-                    interval = 10000
-                    priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-                },
-                locationUpdateCallback,
-                Looper.getMainLooper() // TODO: how does this work?
-            )
-            isRequestingLocationUpdates = true
-        }
     }
 
     private val locationUpdateCallback: LocationCallback = object : LocationCallback() {
