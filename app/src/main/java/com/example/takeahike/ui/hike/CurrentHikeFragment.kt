@@ -20,6 +20,7 @@ import com.example.takeahike.ui.edit.editor.ClickOverlay
 import com.example.takeahike.ui.edit.editor.OnMarkerDragListener
 import com.example.takeahike.uiEvents.currentHikeUIEvents.RecenterEvent
 import com.example.takeahike.uiEvents.currentHikeUIEvents.UpdatePositionEvent
+import com.example.takeahike.uiEvents.currentHikeUIEvents.ViewLoadedEvent
 import com.example.takeahike.viewData.currentRoute.CurrentHikeData
 import com.example.takeahike.viewData.currentRoute.RecenterAction
 import com.example.takeahike.viewModels.ActionPresenter
@@ -43,8 +44,8 @@ class CurrentHikeFragment : Fragment() {
         activity?.let { fusedLocationClient = LocationServices.getFusedLocationProviderClient(it) }
 
         val viewModel = getViewModel()
-        viewModel.data.observe(this, Observer { update(it) })
-        viewModel.action.observe(this, Observer { it.handle { value -> updateAction(value) }})
+        viewModel.data.observe(this, { update(it) })
+        viewModel.action.observe(this, { it.handle { value -> updateAction(value) }})
 
         currentLocationIcon = resources.getDrawable(R.drawable.ic_person_pin_circle_black_48dp, null)
     }
@@ -70,6 +71,8 @@ class CurrentHikeFragment : Fragment() {
         else {
             map.controller.setZoom(18.0)
         }
+
+        getViewModel().update(ViewLoadedEvent())
 
         return view
     }

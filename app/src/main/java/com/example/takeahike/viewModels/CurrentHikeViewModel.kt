@@ -12,6 +12,7 @@ import com.example.takeahike.uiEvents.currentHikeUIEvents.UpdatePositionEvent
 import com.example.takeahike.viewData.currentRoute.CurrentHikeData
 import com.example.takeahike.viewData.currentRoute.RecenterAction
 import com.example.takeahike.backend.utilities.*
+import com.example.takeahike.uiEvents.currentHikeUIEvents.ViewLoadedEvent
 import org.osmdroid.bonuspack.routing.MapQuestRoadManager
 import org.osmdroid.bonuspack.routing.Road
 import org.osmdroid.bonuspack.routing.RoadManager
@@ -22,7 +23,7 @@ class CurrentHikeViewModel(
         mapQuestKey: String)
     : AndroidViewModel(application), ActionPresenter<RecenterAction, CurrentHikeData> {
 
-    private var currentHike : CurrentHike
+    private var currentHike : CurrentHike = CurrentHike("", null, 0.0)
     private var routePoints: List<GeoPoint> = listOf()
     private var road: Road = Road()
     private val roadManager : RoadManager = MapQuestRoadManager(mapQuestKey)
@@ -37,18 +38,17 @@ class CurrentHikeViewModel(
         MutableLiveData<CurrentHikeData>()
     }
 
-    init {
-        currentHike = loadCurrentHike()
-        recenterView()
+    override fun update(event: Any) {
+        when (event) {
+            is UpdatePositionEvent -> updatePosition(event)
+            is RecenterEvent -> recenterView()
+            is ViewLoadedEvent -> viewLoaded()
+        }
     }
 
-    override fun update(event: Any) {
-        if (event is UpdatePositionEvent) {
-            updatePosition(event)
-        }
-        else if (event is RecenterEvent) {
-            recenterView()
-        }
+    private fun viewLoaded() {
+        currentHike = loadCurrentHike()
+        recenterView()
     }
 
     private fun loadCurrentHike() : CurrentHike {
