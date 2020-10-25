@@ -23,6 +23,7 @@ import com.example.takeahike.viewModels.ActionPresenter
 import com.google.android.gms.location.*
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
 
 class CurrentHikeFragment : Fragment() {
@@ -129,6 +130,14 @@ class CurrentHikeFragment : Fragment() {
         val line = Polyline()
         line.setPoints(viewmodel.road)
         map.overlayManager.add(line)
+
+        if (viewmodel.currentPosition != null) {
+            val marker = Marker(map)
+            marker.position = viewmodel.currentPosition
+            marker.icon = currentLocationIcon
+            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            map.overlays.add(marker)
+        }
 
         map.invalidate()
     }
