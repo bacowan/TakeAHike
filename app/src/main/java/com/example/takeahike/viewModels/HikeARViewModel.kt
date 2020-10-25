@@ -20,16 +20,13 @@ import org.osmdroid.bonuspack.routing.Road
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.util.GeoPoint
 
-class HikeARViewModel(
-        application: Application,
-        mapQuestKey: String)
+class HikeARViewModel(application: Application)
     : AndroidViewModel(application), Presenter<HikeARData> {
 
     private var currentHike : CurrentHike = CurrentHike("", null, 0.0)
     private val dataParser : ParseRouteListData = ParseRouteListData()
-    private val roadManager : RoadManager = MapQuestRoadManager(mapQuestKey)
     private val locationLogic = LocationLogic()
-    private var road: Road = Road()
+    private var road: List<GeoPoint> = listOf()
 
     override val data: MutableLiveData<HikeARData> by lazy {
         MutableLiveData<HikeARData>()
@@ -69,12 +66,7 @@ class HikeARViewModel(
             val route = dataParser.loadRoute(hike.routeId)
             if (route != null) {
                 val points = ArrayList(route.wayPoints.map { GeoPoint(it.lat, it.lon) })
-                road = if (points.count() > 1) {
-                    roadManager.getRoad(points)
-                }
-                else {
-                    Road()
-                }
+                road = ArrayList(route.road.map { GeoPoint(it.lat, it.lon) })
                 val currentPoint = locationLogic.getPointAlongRoad(road, hike.distanceTraveled)
                 if (currentPoint != null) {
                     data.value = HikeARData(LatLng(

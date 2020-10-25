@@ -9,22 +9,15 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.takeahike.R
 import com.example.takeahike.backend.data.LatLng
 import com.example.takeahike.ui.LocationUpdater
 import com.example.takeahike.uiEvents.hikeAR.UIReadyEvent
 import com.example.takeahike.uiEvents.hikeAR.UpdatePositionEvent
-import com.example.takeahike.viewData.currentRoute.CurrentHikeData
-import com.example.takeahike.viewData.currentRoute.RecenterAction
 import com.example.takeahike.viewData.hikeAR.HikeARData
-import com.example.takeahike.viewModels.ActionPresenter
-import com.example.takeahike.viewModels.CurrentHikeViewModel
 import com.example.takeahike.viewModels.HikeARViewModel
 import com.example.takeahike.viewModels.Presenter
-import com.example.takeahike.viewModels.factories.CurrentHikePresenterFactory
-import com.example.takeahike.viewModels.factories.HikeARPresenterFactory
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
@@ -48,7 +41,8 @@ class HikeAR : Fragment() {
             LocationServices.getFusedLocationProviderClient(it),
             locationUpdateCallback) }
 
-        getViewModel().data.observe(this, { update(it) })
+        val viewModel : HikeARViewModel by viewModels()
+        viewModel.data.observe(this, { update(it) })
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -65,23 +59,14 @@ class HikeAR : Fragment() {
             }
         }
 
-        getViewModel().update(UIReadyEvent())
+        val viewModel : HikeARViewModel by viewModels()
+        viewModel.update(UIReadyEvent())
     }
 
     private fun update(hikeARData: HikeARData) {
         val webView = view?.findViewById<WebView>(R.id.ar_web_view)
         webView?.loadUrl(
             "https://maps.google.com/maps?layer=c&cbll=${hikeARData.latLng.lat},${hikeARData.latLng.lon}")
-    }
-
-    private fun getViewModel() : Presenter<HikeARData> {
-        return ViewModelProvider(
-            this,
-            HikeARPresenterFactory(
-                activity?.application!!,
-                resources.getString(R.string.map_quest_key))
-            )
-            .get(HikeARViewModel::class.java)
     }
 
     override fun onResume() {
@@ -96,7 +81,7 @@ class HikeAR : Fragment() {
 
     private val locationUpdateCallback: LocationCallback = object : LocationCallback() {
         override fun onLocationResult(location: LocationResult?) {
-            val viewModel = getViewModel()
+            val viewModel : HikeARViewModel by viewModels()
             if (location != null) {
                 viewModel.update(
                     UpdatePositionEvent(

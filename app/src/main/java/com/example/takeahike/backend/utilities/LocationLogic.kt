@@ -8,13 +8,13 @@ import org.osmdroid.util.GeoPoint
 import kotlin.math.*
 
 class LocationLogic {
-    fun getPointAlongRoad(road: Road, distance: Double): GeoPoint? {
+    fun getPointAlongRoad(road: List<GeoPoint>, distance: Double): GeoPoint? {
         var distanceLeft = distance
 
 
-        for (i in 1 until road.mRouteHigh.size) {
-            val previousNode = road.mRouteHigh.elementAtOrNull(i - 1)
-            val currentNode = road.mRouteHigh.elementAtOrNull(i)
+        for (i in 1 until road.size) {
+            val previousNode = road.elementAtOrNull(i - 1)
+            val currentNode = road.elementAtOrNull(i)
             val currentSectionDistance = if (previousNode != null && currentNode != null) {
                 distanceBetween(previousNode, currentNode)
             }
@@ -39,7 +39,7 @@ class LocationLogic {
             }
         }
 
-        return road.mNodes.lastOrNull()?.mLocation
+        return road.lastOrNull()
     }
 
     fun distanceBetween(p1: GeoPoint, p2: GeoPoint) : Double? {

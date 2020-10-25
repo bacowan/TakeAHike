@@ -18,15 +18,12 @@ import org.osmdroid.bonuspack.routing.Road
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.util.GeoPoint
 
-class CurrentHikeViewModel(
-        application: Application,
-        mapQuestKey: String)
+class CurrentHikeViewModel(application: Application)
     : AndroidViewModel(application), ActionPresenter<RecenterAction, CurrentHikeData> {
 
     private var currentHike : CurrentHike = CurrentHike("", null, 0.0)
     private var routePoints: List<GeoPoint> = listOf()
-    private var road: Road = Road()
-    private val roadManager : RoadManager = MapQuestRoadManager(mapQuestKey)
+    private var road: List<GeoPoint> = listOf()
     private val dataParser : ParseRouteListData = ParseRouteListData()
     private val locationLogic = LocationLogic()
 
@@ -60,14 +57,7 @@ class CurrentHikeViewModel(
             val route = dataParser.loadRoute(currentHike.routeId)
             if (route != null) {
                 val points = ArrayList(route.wayPoints.map { GeoPoint(it.lat, it.lon) })
-                val road = if (points.count() > 1) {
-                    // TODO: use the saved road, not the waypoints
-                    //  (that way we don't have to call the API every time)
-                    roadManager.getRoad(points)
-                }
-                else {
-                    Road()
-                }
+                road = route.road.map { GeoPoint(it.lat, it.lon) }
                 val currentPoint = locationLogic.getPointAlongRoad(road, currentHike.distanceTraveled)
 
                 CurrentHikeData(
@@ -80,7 +70,7 @@ class CurrentHikeViewModel(
                 //TODO: Error handling
                 CurrentHikeData(
                     listOf(),
-                    Road(),
+                    listOf(),
                     null
                 )
             }
@@ -89,12 +79,11 @@ class CurrentHikeViewModel(
             //TODO: Error handling
             CurrentHikeData(
                 listOf(),
-                Road(),
+                listOf(),
                 null
             )
         }
 
-        road = viewData.road
         routePoints = viewData.waypoints
 
         data.value = viewData

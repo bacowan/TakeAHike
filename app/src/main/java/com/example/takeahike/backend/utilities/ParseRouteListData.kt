@@ -29,8 +29,9 @@ class ParseRouteListData {
     ) {
         val realm = Realm.getDefaultInstance()
         val entity = RouteEntity(name = name)
-        entity.road.addAll(road.mNodes.map { node ->
-            GpsPointEntity(node.mLocation.latitude, node.mLocation.longitude)
+
+        entity.road.addAll(road.mRouteHigh.map { node ->
+            GpsPointEntity(node.latitude, node.longitude)
         })
         entity.wayPoints.addAll(wayPoints.map { node ->
             GpsPointEntity(node.latitude, node.longitude)

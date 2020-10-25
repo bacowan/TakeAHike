@@ -1,38 +1,29 @@
 package com.example.takeahike.ui.hike
 
-import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.navArgs
 import com.example.takeahike.R
-import com.example.takeahike.backend.data.CurrentHike
 import com.example.takeahike.backend.data.LatLng
 import com.example.takeahike.ui.LocationUpdater
 import com.example.takeahike.viewModels.CurrentHikeViewModel
 import com.example.takeahike.ui.edit.editor.ClickOverlay
-import com.example.takeahike.ui.edit.editor.OnMarkerDragListener
 import com.example.takeahike.uiEvents.currentHikeUIEvents.RecenterEvent
 import com.example.takeahike.uiEvents.currentHikeUIEvents.UpdatePositionEvent
 import com.example.takeahike.uiEvents.currentHikeUIEvents.ViewLoadedEvent
 import com.example.takeahike.viewData.currentRoute.CurrentHikeData
 import com.example.takeahike.viewData.currentRoute.RecenterAction
 import com.example.takeahike.viewModels.ActionPresenter
-import com.example.takeahike.viewModels.factories.CurrentHikePresenterFactory
 import com.google.android.gms.location.*
-import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
+import org.osmdroid.views.overlay.Polyline
 
 class CurrentHikeFragment : Fragment() {
     private lateinit var map: MapView
@@ -45,7 +36,7 @@ class CurrentHikeFragment : Fragment() {
             LocationServices.getFusedLocationProviderClient(it),
             locationUpdateCallback) }
 
-        val viewModel = getViewModel()
+        val viewModel : CurrentHikeViewModel by viewModels()
         viewModel.data.observe(this, { update(it) })
         viewModel.action.observe(this, { it.handle { value -> updateAction(value) }})
 
@@ -74,7 +65,8 @@ class CurrentHikeFragment : Fragment() {
             map.controller.setZoom(18.0)
         }
 
-        getViewModel().update(ViewLoadedEvent())
+        val viewModel : CurrentHikeViewModel by viewModels()
+        viewModel.update(ViewLoadedEvent())
 
         return view
     }
@@ -91,7 +83,7 @@ class CurrentHikeFragment : Fragment() {
 
         val recenterButton: View = view.findViewById(R.id.recenter_button)
         recenterButton.setOnClickListener {
-            val viewModel = getViewModel()
+            val viewModel : CurrentHikeViewModel by viewModels()
             viewModel.update(RecenterEvent())
         }
     }
@@ -117,7 +109,7 @@ class CurrentHikeFragment : Fragment() {
 
     private val locationUpdateCallback: LocationCallback = object : LocationCallback() {
         override fun onLocationResult(location: LocationResult?) {
-            val viewModel = getViewModel()
+            val viewModel : CurrentHikeViewModel by viewModels()
             if (location != null) {
                 viewModel.update(
                     UpdatePositionEvent(
@@ -131,28 +123,12 @@ class CurrentHikeFragment : Fragment() {
         }
     }
 
-    private fun getViewModel() : ActionPresenter<RecenterAction, CurrentHikeData> {
-        return ViewModelProvider(
-                this,
-                CurrentHikePresenterFactory(
-                    activity?.application!!,
-                    resources.getString(R.string.map_quest_key)))
-            .get(CurrentHikeViewModel::class.java)
-    }
-
     private fun update(viewmodel : CurrentHikeData) {
         map.overlays.removeIf { it !is ClickOverlay }
 
-        val roadOverlay = RoadManager.buildRoadOverlay(viewmodel.road)
-        map.overlays.add(roadOverlay)
-
-        if (viewmodel.currentPosition != null) {
-            val marker = Marker(map)
-            marker.position = viewmodel.currentPosition
-            marker.icon = currentLocationIcon
-            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-            map.overlays.add(marker)
-        }
+        val line = Polyline()
+        line.setPoints(viewmodel.road)
+        map.overlayManager.add(line)
 
         map.invalidate()
     }
